@@ -1,9 +1,10 @@
 /* (c) Copyright Frontify Ltd., all rights reserved. */
 
-import { AnExampleBlock } from './Block';
-import { settings } from './settings';
+import settings from './settings';
+// import { TestBlock } from './Test';
+import { VariableFontStylesBlock } from './VariableFontStylesBlock';
 
 export default {
-    block: AnExampleBlock,
+    block: VariableFontStylesBlock,
     settings,
 };
