@@ -1,11 +1,11 @@
 /* (c) Copyright Frontify Ltd., all rights reserved. */
-import { AppBridgeBlock, useEditorState } from '@frontify/app-bridge';
+import { AppBridgeBlock, useBlockSettings, useEditorState } from '@frontify/app-bridge';
 import { Button, ButtonStyle, IconPlusCircle } from '@frontify/fondue';
-import { FC, useReducer } from 'react';
+import { FC, useEffect, useReducer } from 'react';
 
 import { EmptyState } from './components/EmptyState';
 import { VariableFontStyleEntry } from './components/VariableFontStyleEntry';
-import { ActionType, getStylesArray, hasStyles, reducer } from './reducer';
+import { ActionType, VariableFontStyle, getStylesArray, hasStyles, reducer } from './reducer';
 import style from './style.module.css';
 
 type Props = {
@@ -14,8 +14,12 @@ type Props = {
 
 export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
     const isEditing = useEditorState(appBridge);
-    const [state, dispatch] = useReducer(reducer, {});
-    console.log(isEditing);
+    const [settings, setSettings] = useBlockSettings(appBridge);
+    const [state, dispatch] = useReducer(reducer, (settings.fontStyles as Record<string, VariableFontStyle>) || {});
+
+    useEffect(() => {
+        setSettings({ fontStyles: state });
+    }, [setSettings, state]);
 
     return (
         <div className={style.container}>
