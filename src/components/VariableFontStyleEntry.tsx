@@ -13,11 +13,12 @@ import {
     IconPen,
     IconTypographyBox,
     TextInput,
+    Textarea,
 } from '@frontify/fondue';
 import React, { Dispatch, FC } from 'react';
 import usePromise from 'react-use-promise';
 
-import { Action, ActionType, VariableFontStyle, defaultExampleText } from '../reducer';
+import { Action, ActionType, VariableFontStyle } from '../reducer';
 import style from '../style.module.css';
 
 interface Props {
@@ -39,7 +40,7 @@ export const VariableFontStyleEntry: FC<Props> = ({
     appBridge,
     dispatch,
     isEditing,
-    variableFontStyle: { allowedColors, asset, id, hasFlyoutOpen, name, weight },
+    variableFontStyle: { allowedColors, asset, exampleText, id, hasFlyoutOpen, name, weight },
 }) => {
     const assetChooser = useAssetChooser(appBridge);
     const [result /*, error, state*/] = usePromise(() => appBridge.getColors(), []);
@@ -68,7 +69,7 @@ export const VariableFontStyleEntry: FC<Props> = ({
                         fontWeight: weight,
                     }}
                 >
-                    {defaultExampleText}
+                    {exampleText}
                 </p>
                 {isEditing && (
                     <div className={style['example-text__edit-wrapper']}>
@@ -132,7 +133,7 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                 </FormControl>
                                 <FormControl
                                     label={{
-                                        children: 'Style name',
+                                        children: 'Style font',
                                         htmlFor: `style${id}fontAsset`,
                                     }}
                                 >
@@ -175,6 +176,25 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                             });
                                         }}
                                         acceptFileType="ttf"
+                                    />
+                                </FormControl>
+                                <FormControl
+                                    label={{
+                                        children: 'Style exampe text',
+                                        htmlFor: `style${id}exampleText`,
+                                    }}
+                                >
+                                    <Textarea
+                                        value={exampleText}
+                                        onInput={(value) =>
+                                            dispatch({
+                                                type: ActionType.Edit,
+                                                payload: {
+                                                    id,
+                                                    partial: { exampleText: value },
+                                                },
+                                            })
+                                        }
                                     />
                                 </FormControl>
                                 <FormControl
