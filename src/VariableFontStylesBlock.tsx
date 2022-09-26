@@ -18,8 +18,10 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
     const [state, dispatch] = useReducer(reducer, (settings.fontStyles as Record<string, VariableFontStyle>) || {});
 
     useEffect(() => {
+        console.log('BLOCK STATE', state);
         setSettings({ fontStyles: state });
-    }, [setSettings, state]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [state]);
 
     return (
         <div className={style.container}>

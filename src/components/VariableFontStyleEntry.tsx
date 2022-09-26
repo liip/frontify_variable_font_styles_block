@@ -1,25 +1,25 @@
-import { AppBridgeBlock, FrontifyAsset, FrontifyColor, useAssetChooser } from '@frontify/app-bridge';
+import { AppBridgeBlock, FrontifyAsset, useAssetChooser } from '@frontify/app-bridge';
 import {
     AssetInput,
     AssetInputSize,
     Button,
     ButtonStyle,
-    Checkbox,
-    CheckboxState,
     Color,
     Flyout,
     FormControl,
+    IconCross,
     IconMinusCircle,
     IconPen,
     IconTypographyBox,
     TextInput,
     Textarea,
 } from '@frontify/fondue';
-import React, { Dispatch, FC } from 'react';
+import React, { ChangeEvent, Dispatch, FC } from 'react';
 import usePromise from 'react-use-promise';
 
 import { Action, ActionType, VariableFontStyle } from '../reducer';
 import style from '../style.module.css';
+import { ColorSelector, getUniqueColorName, toRgbaString } from './ColorSelector';
 
 interface Props {
     appBridge: AppBridgeBlock & { getColors: () => Promise<Color[]> };
@@ -32,18 +32,14 @@ const extensionMap: Record<string, string> = {
     ttf: 'truetype-variations',
 };
 
-const toRgbaString = (color: FrontifyColor): string => {
-    return `rgba(${color.red}, ${color.green}, ${color.blue}, ${color.alpha})`;
-};
-
 export const VariableFontStyleEntry: FC<Props> = ({
     appBridge,
     dispatch,
     isEditing,
-    variableFontStyle: { allowedColors, asset, exampleText, id, hasFlyoutOpen, name, weight },
+    variableFontStyle: { allowedColors, asset, currentColor, exampleText, id, hasFlyoutOpen, name, weight },
 }) => {
     const assetChooser = useAssetChooser(appBridge);
-    const [result /*, error, state*/] = usePromise(() => appBridge.getColors(), []);
+    const [allColors /*, error, state*/] = usePromise(() => appBridge.getColors(), []);
 
     return (
         <div>
@@ -60,17 +56,82 @@ export const VariableFontStyleEntry: FC<Props> = ({
                     `}
                 </style>
             )}
-            <div className={style['style-name']}>{name}</div>
+
             <div className={style['example-text__wrapper']}>
                 <p
                     className={style['example-text']}
                     style={{
                         fontFamily: asset?.title,
                         fontWeight: weight,
+                        color: !isEditing && currentColor ? toRgbaString(currentColor) : 'inherit',
                     }}
                 >
                     {exampleText}
                 </p>
+                <div className={style['style-info-container']}>
+                    <div>
+                        <h6 className={style['style-info__name']}>{name}</h6>
+                        <p className={style['style-info__weight']}>
+                            Weight: <strong>{weight}</strong>
+                        </p>
+                    </div>
+                    <div className={style['color-selectors-wrapper']}>
+                        {allowedColors.map((color) => (
+                            <ColorSelector
+                                key={getUniqueColorName(id, color)}
+                                color={color}
+                                id={id}
+                                isChecked={
+                                    currentColor
+                                        ? getUniqueColorName(id, color) === getUniqueColorName(id, currentColor)
+                                        : false
+                                }
+                                handleChange={() => {
+                                    dispatch({
+                                        type: ActionType.Edit,
+                                        payload: {
+                                            id,
+                                            partial: {
+                                                currentColor: color,
+                                            },
+                                        },
+                                    });
+                                }}
+                            />
+                        ))}
+                        <div>
+                            <input
+                                type="radio"
+                                id={`${id}-no-color`}
+                                value={`${id}-no-color`}
+                                checked={!currentColor}
+                                name={id}
+                                onChange={() => {
+                                    dispatch({
+                                        type: ActionType.Edit,
+                                        payload: {
+                                            id,
+                                            partial: {
+                                                currentColor: undefined,
+                                            },
+                                        },
+                                    });
+                                }}
+                                className="tw-sr-only"
+                            ></input>
+                            <label htmlFor={`${id}-no-color`}>
+                                <div
+                                    className={style['color-selector__reset']}
+                                    style={{
+                                        boxShadow: !currentColor ? '0 0 0 2px rgba(0,0,0,0.3)' : 'none',
+                                    }}
+                                >
+                                    <IconCross />
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
                 {isEditing && (
                     <div className={style['example-text__edit-wrapper']}>
                         <Flyout
@@ -88,9 +149,7 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                         })
                                     }
                                     style={ButtonStyle.Secondary}
-                                >
-                                    Edit Style
-                                </Button>
+                                ></Button>
                             }
                             onOpenChange={(isOpen) =>
                                 dispatch({
@@ -157,7 +216,6 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                         numberOfLocations={1}
                                         onLibraryClick={() => {
                                             assetChooser.openAssetChooser((a) => {
-                                                console.log('assets', a);
                                                 assetChooser.closeAssetChooser();
                                                 dispatch({
                                                     type: ActionType.Edit,
@@ -180,7 +238,7 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                 </FormControl>
                                 <FormControl
                                     label={{
-                                        children: 'Style exampe text',
+                                        children: 'Style example text',
                                         htmlFor: `style${id}exampleText`,
                                     }}
                                 >
@@ -199,8 +257,8 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                 </FormControl>
                                 <FormControl
                                     label={{
-                                        children: 'Font width',
-                                        htmlFor: `style${id}fontWidth`,
+                                        children: `Font weight: ${weight}`,
+                                        htmlFor: `style${id}fontWeight`,
                                     }}
                                 >
                                     <input
@@ -219,36 +277,40 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                         }}
                                     ></input>
                                 </FormControl>
-                                <FormControl>
-                                    {result &&
-                                        result.length > 0 &&
-                                        result.map((r, index) => (
-                                            <div key={index}>
-                                                <Checkbox
-                                                    label={r.name}
-                                                    value={r.name}
-                                                    state={
-                                                        allowedColors.some((a) => a.name === r.name)
-                                                            ? CheckboxState.Checked
-                                                            : CheckboxState.Unchecked
-                                                    }
-                                                    onChange={(isChecked) =>
+                                <FormControl
+                                    label={{
+                                        children: 'Allowed colors',
+                                        htmlFor: `style${id}allowedColors`,
+                                    }}
+                                >
+                                    <div className={style['color-selectors-wrapper']}>
+                                        {allColors &&
+                                            allColors.length > 0 &&
+                                            allColors.map((allColor) => (
+                                                <ColorSelector
+                                                    key={getUniqueColorName(id, allColor)}
+                                                    color={allColor}
+                                                    id={`selector${id}`}
+                                                    isChecked={allowedColors.some(
+                                                        (allowedColor) =>
+                                                            getUniqueColorName(id, allowedColor) ===
+                                                            getUniqueColorName(id, allColor)
+                                                    )}
+                                                    isMultiSelect
+                                                    handleChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                                        const isChecked = e.target.checked;
                                                         dispatch({
                                                             type: ActionType.EditAllowedColors,
                                                             payload: {
                                                                 id,
-                                                                color: r,
+                                                                color: allColor,
                                                                 isAdded: isChecked,
                                                             },
-                                                        })
-                                                    }
-                                                ></Checkbox>
-                                                <div
-                                                    className={style.miniswatch}
-                                                    style={{ backgroundColor: toRgbaString(r) }}
-                                                ></div>
-                                            </div>
-                                        ))}
+                                                        });
+                                                    }}
+                                                />
+                                            ))}
+                                    </div>
                                 </FormControl>
                             </div>
                         </Flyout>

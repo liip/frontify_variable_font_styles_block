@@ -61,10 +61,10 @@ const createDefaultFontStyle = (id: string): VariableFontStyle => ({
     allowedColors: [],
     name: 'Unnamed style',
     exampleText: defaultExampleText,
+    weight: '400',
 });
 
 export function reducer(state: State, action: Action): State {
-    console.log('WEEEEEE');
     switch (action.type) {
         case ActionType.Edit:
             return {
