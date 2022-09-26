@@ -34,14 +34,16 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
                             />
                         ))}
                     </div>
-                    <Button
-                        hugWidth
-                        icon={<IconPlusCircle />}
-                        style={ButtonStyle.Secondary}
-                        onClick={() => dispatch({ type: ActionType.Add })}
-                    >
-                        Add new style
-                    </Button>
+                    {isEditing && (
+                        <Button
+                            hugWidth
+                            icon={<IconPlusCircle />}
+                            style={ButtonStyle.Secondary}
+                            onClick={() => dispatch({ type: ActionType.Add })}
+                        >
+                            Add new style
+                        </Button>
+                    )}
                 </div>
             )}
         </div>
