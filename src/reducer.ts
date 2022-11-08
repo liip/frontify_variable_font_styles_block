@@ -1,4 +1,4 @@
-import { FrontifyAsset, FrontifyColor } from '@frontify/app-bridge';
+import { FrontifyColor } from '@frontify/app-bridge';
 import { nanoid } from 'nanoid';
 
 export interface VariableFontStyle {
@@ -7,7 +7,6 @@ export interface VariableFontStyle {
     exampleText: string;
     allowedColors: FrontifyColor[];
     currentColor?: FrontifyColor;
-    asset?: FrontifyAsset;
     // Hardcode this to only use weight
     // TODO Find solution to add custom min and max values
     // TODO Find solution for arbitrary dimensions

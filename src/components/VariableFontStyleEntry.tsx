@@ -1,7 +1,5 @@
-import { AppBridgeBlock, FrontifyAsset, useAssetChooser } from '@frontify/app-bridge';
+import { AppBridgeBlock } from '@frontify/app-bridge';
 import {
-    AssetInput,
-    AssetInputSize,
     Button,
     ButtonStyle,
     Color,
@@ -10,7 +8,6 @@ import {
     IconCross,
     IconMinusCircle,
     IconPen,
-    IconTypographyBox,
     TextInput,
     Textarea,
 } from '@frontify/fondue';
@@ -26,42 +23,25 @@ interface Props {
     dispatch: Dispatch<Action>;
     isEditing: boolean;
     variableFontStyle: VariableFontStyle;
+    variableFontName?: string;
 }
-
-const extensionMap: Record<string, string> = {
-    ttf: 'truetype-variations',
-};
 
 export const VariableFontStyleEntry: FC<Props> = ({
     appBridge,
     dispatch,
     isEditing,
-    variableFontStyle: { allowedColors, asset, currentColor, exampleText, id, hasFlyoutOpen, name, weight },
+    variableFontStyle: { allowedColors, currentColor, exampleText, id, hasFlyoutOpen, name, weight },
+    variableFontName,
 }) => {
-    const assetChooser = useAssetChooser(appBridge);
     const [allColors /*, error, state*/] = usePromise(() => appBridge.getColors(), []);
 
     return (
         <div>
-            {asset && (
-                <style>
-                    {`
-                        @font-face {
-                            font-family: "${asset?.title}";    
-                            src:
-                                url("${(asset as FrontifyAsset & { download_url: string }).download_url}")
-                                format("${extensionMap[asset?.extension || 'truetype-variations']}");
-                            font-weight: 100 900;
-                        }
-                    `}
-                </style>
-            )}
-
             <div className={style['example-text__wrapper']}>
                 <p
                     className={style['example-text']}
                     style={{
-                        fontFamily: asset?.title,
+                        fontFamily: variableFontName,
                         fontWeight: weight,
                         color: !isEditing && currentColor ? toRgbaString(currentColor) : 'inherit',
                     }}
@@ -189,52 +169,6 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                             })
                                         }
                                     ></TextInput>
-                                </FormControl>
-                                <FormControl
-                                    label={{
-                                        children: 'Style font',
-                                        htmlFor: `style${id}fontAsset`,
-                                    }}
-                                >
-                                    <AssetInput
-                                        size={AssetInputSize.Small}
-                                        assets={
-                                            asset
-                                                ? ([
-                                                      {
-                                                          type: 'icon',
-                                                          icon: <IconTypographyBox />,
-                                                          name: asset?.title,
-                                                          extension: asset.extension,
-                                                          size: asset.fileSize,
-                                                          source: 'library',
-                                                          sourceName: 'random',
-                                                      },
-                                                  ] as any)
-                                                : undefined
-                                        }
-                                        numberOfLocations={1}
-                                        onLibraryClick={() => {
-                                            assetChooser.openAssetChooser((a) => {
-                                                assetChooser.closeAssetChooser();
-                                                dispatch({
-                                                    type: ActionType.Edit,
-                                                    payload: {
-                                                        id,
-                                                        partial: { asset: a[0], hasFlyoutOpen: true },
-                                                    },
-                                                });
-                                            }, {});
-                                            dispatch({
-                                                type: ActionType.Edit,
-                                                payload: {
-                                                    id,
-                                                    partial: { hasFlyoutOpen: false },
-                                                },
-                                            });
-                                        }}
-                                        acceptFileType="ttf"
-                                    />
                                 </FormControl>
                                 <FormControl
                                     label={{
