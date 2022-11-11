@@ -211,41 +211,6 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                         }}
                                     ></input>
                                 </FormControl>
-                                <FormControl
-                                    label={{
-                                        children: 'Allowed colors',
-                                        htmlFor: `style${id}allowedColors`,
-                                    }}
-                                >
-                                    <div className={style['color-selectors-wrapper']}>
-                                        {allColors &&
-                                            allColors.length > 0 &&
-                                            allColors.map((allColor) => (
-                                                <ColorSelector
-                                                    key={getUniqueColorName(id, allColor)}
-                                                    color={allColor}
-                                                    id={`selector${id}`}
-                                                    isChecked={allowedColors.some(
-                                                        (allowedColor) =>
-                                                            getUniqueColorName(id, allowedColor) ===
-                                                            getUniqueColorName(id, allColor)
-                                                    )}
-                                                    isMultiSelect
-                                                    handleChange={(e: ChangeEvent<HTMLInputElement>) => {
-                                                        const isChecked = e.target.checked;
-                                                        dispatch({
-                                                            type: ActionType.EditAllowedColors,
-                                                            payload: {
-                                                                id,
-                                                                color: allColor,
-                                                                isAdded: isChecked,
-                                                            },
-                                                        });
-                                                    }}
-                                                />
-                                            ))}
-                                    </div>
-                                </FormControl>
                             </div>
                         </Flyout>
                         <Button
