@@ -1,6 +1,6 @@
 import { FrontifyColor } from '@frontify/app-bridge';
 import { IconCheckMarkCircle } from '@frontify/fondue';
-import React, { ChangeEventHandler, FC } from 'react';
+import { ChangeEventHandler, FC } from 'react';
 
 import style from '../style.module.css';
 
