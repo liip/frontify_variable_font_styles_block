@@ -10,8 +10,7 @@ import {
     TextInput,
     Textarea,
 } from '@frontify/fondue';
-import React, { ChangeEvent, Dispatch, FC } from 'react';
-import usePromise from 'react-use-promise';
+import { Dispatch, FC } from 'react';
 
 import { Action, ActionType, VariableFontStyle } from '../reducer';
 import style from '../style.module.css';
