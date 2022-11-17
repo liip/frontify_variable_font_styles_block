@@ -38,7 +38,7 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
                         <style>
                             {`
                                 @font-face {
-                                    font-family: "${currentAssets?.title}";
+                                    font-family: "${currentAssets?.title}";    
                                     src:
                                         url("${currentAssets.originUrl}")
                                         format("${extensionMap[currentAssets?.extension || 'truetype-variations']}");
