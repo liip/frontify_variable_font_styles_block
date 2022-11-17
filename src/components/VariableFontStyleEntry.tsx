@@ -5,7 +5,6 @@ import {
     Color,
     Flyout,
     FormControl,
-    IconCross,
     IconMinusCircle,
     IconPen,
     TextInput,
@@ -26,14 +25,11 @@ interface Props {
 }
 
 export const VariableFontStyleEntry: FC<Props> = ({
-    appBridge,
     dispatch,
     isEditing,
     variableFontStyle: { exampleText, id, hasFlyoutOpen, name, weight },
     variableFontName,
 }) => {
-    const [allColors /*, error, state*/] = usePromise(() => appBridge.getColors(), []);
-
     return (
         <div>
             <div className={style['example-text__wrapper']}>
