@@ -11,7 +11,6 @@ import {
     Textarea,
 } from '@frontify/fondue';
 import { Dispatch, FC } from 'react';
-
 import { Action, ActionType, VariableFontStyle } from '../reducer';
 import style from '../style.module.css';
 
