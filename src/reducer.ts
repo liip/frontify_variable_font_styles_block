@@ -10,6 +10,7 @@ export interface VariableFontStyle {
     // TODO Find solution for arbitrary dimensions
     weight?: string;
     hasFlyoutOpen?: boolean;
+    fontDescription: string;
 }
 
 export type State = Record<string, VariableFontStyle>;
@@ -52,12 +53,14 @@ type ActionAdd = {
 export type Action = ActionEdit | ActionEditAllowedColors | ActionDelete | ActionAdd;
 
 export const defaultExampleText = 'The quick brown fox jumps over the lazy dog';
+export const defaultDescriptionText = 'Empty description';
 
 const createDefaultFontStyle = (id: string): VariableFontStyle => ({
     id,
     name: 'Unnamed style',
     exampleText: defaultExampleText,
     weight: '400',
+    fontDescription: defaultDescriptionText,
 });
 
 export function reducer(state: State, action: Action): State {

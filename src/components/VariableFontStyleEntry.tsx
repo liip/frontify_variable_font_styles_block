@@ -25,7 +25,7 @@ interface Props {
 export const VariableFontStyleEntry: FC<Props> = ({
     dispatch,
     isEditing,
-    variableFontStyle: { exampleText, id, hasFlyoutOpen, name, weight },
+    variableFontStyle: { exampleText, id, hasFlyoutOpen, name, weight, fontDescription },
     variableFontName,
 }) => {
     return (
@@ -45,6 +45,9 @@ export const VariableFontStyleEntry: FC<Props> = ({
                         <h6 className={style['style-info__name']}>{name}</h6>
                         <p className={style['style-info__weight']}>
                             Weight: <strong>{weight}</strong>
+                        </p>
+                        <p className={style['style-info__weight']}>
+                            Description: <strong>{fontDescription}</strong>
                         </p>
                     </div>
                 </div>
@@ -120,6 +123,25 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                                 payload: {
                                                     id,
                                                     partial: { exampleText: value },
+                                                },
+                                            })
+                                        }
+                                    />
+                                </FormControl>
+                                <FormControl
+                                    label={{
+                                        children: 'Font description',
+                                        htmlFor: `style${id}description`,
+                                    }}
+                                >
+                                    <Textarea
+                                        value={fontDescription}
+                                        onInput={(value) =>
+                                            dispatch({
+                                                type: ActionType.Edit,
+                                                payload: {
+                                                    id,
+                                                    partial: { fontDescription: value },
                                                 },
                                             })
                                         }
