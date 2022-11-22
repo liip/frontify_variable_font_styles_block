@@ -23,14 +23,28 @@ export const FontDimensionRange: FC<FontDimensionRangeProps> = ({ dimension, dis
             >
                 <Checkbox
                     onChange={() => {
+                        const partial: Partial<VariableFontDimension> = { isValueRange: !dimension.isValueRange };
+
+                        if (dimension.isValueRange) {
+                            // If we are currently in a range, we set the value to the default value from the range
+                            partial.value = dimension.editorDefault;
+                        } else {
+                            // If we are currently not in a range, we set the range default to the value and make sure we don't violate min and max values
+                            partial.editorDefault = dimension.value;
+                            if (dimension.value < dimension.editorMinValue) {
+                                partial.editorMinValue = dimension.value;
+                            }
+                            if (dimension.value > dimension.editorMaxValue) {
+                                partial.editorMaxValue = dimension.value;
+                            }
+                        }
+
                         dispatch({
                             type: ActionType.EditDimensions,
                             payload: {
                                 id,
                                 tag: dimension.tag,
-                                partial: {
-                                    isValueRange: !dimension.isValueRange,
-                                },
+                                partial,
                             },
                         });
                     }}
