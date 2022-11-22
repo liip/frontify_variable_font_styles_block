@@ -20,10 +20,6 @@ export interface VariableFontStyle {
     id: string;
     name: string;
     exampleText: string;
-    // Hardcode this to only use weight
-    // TODO Find solution to add custom min and max values
-    // TODO Find solution for arbitrary dimensions
-    weight?: string;
     dimensions: Record<string, VariableFontDimension>;
     hasFlyoutOpen?: boolean;
     fontDescription: string;
@@ -111,7 +107,6 @@ const createDefaultFontStyle = (
     id,
     name: 'Unnamed style',
     exampleText: defaultExampleText,
-    weight: '400',
     fontDescription: defaultDescriptionText,
     dimensions: createObject<VariableFontDimension, keyof VariableFontDimension>(
         Object.values(dimensions).map(mapDefaultsToFontStyle),
