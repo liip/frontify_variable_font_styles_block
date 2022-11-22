@@ -113,7 +113,10 @@ const createDefaultFontStyle = (
     exampleText: defaultExampleText,
     weight: '400',
     fontDescription: defaultDescriptionText,
-    dimensions: resetDims(Object.values(dimensions).map(mapDefaultsToFontStyle)),
+    dimensions: createObject<VariableFontDimension, keyof VariableFontDimension>(
+        Object.values(dimensions).map(mapDefaultsToFontStyle),
+        'tag'
+    ),
 });
 
 const resetStylesArray = (
@@ -122,28 +125,35 @@ const resetStylesArray = (
 ): VariableFontStyle[] => {
     return styles.map((style) => ({
         ...style,
-        dimensions: resetDims(Object.values(payload).map(mapDefaultsToFontStyle)),
+        dimensions: createObject<VariableFontDimension, keyof VariableFontDimension>(
+            Object.values(payload).map(mapDefaultsToFontStyle),
+            'tag'
+        ),
     }));
 };
 
-const resetDims = (styles: VariableFontDimension[]) =>
-    styles.reduce<Record<string, VariableFontDimension>>((accumulator, current) => {
-        accumulator[current.tag] = current;
-        return accumulator;
-    }, {});
+const isValidKey = (x: unknown): x is string => typeof x === 'string';
 
-const resetStyles = (styles: VariableFontStyle[]) =>
-    styles.reduce<Record<string, VariableFontStyle>>((accumulator, current) => {
-        accumulator[current.id] = current;
+function createObject<T extends object, K extends keyof T>(array: T[], key: K) {
+    return array.reduce<Record<T[K] & string, T>>((accumulator, current) => {
+        const valueAtKey = current[key];
+
+        if (isValidKey(valueAtKey)) {
+            accumulator[valueAtKey] = current;
+        }
         return accumulator;
-    }, {});
+    }, {} as Record<T[K] & string, T>);
+}
 
 export function reducer(state: State, action: Action): State {
     switch (action.type) {
         case ActionType.SetDimensions:
             return {
                 defaultDimensions: action.payload,
-                styles: resetStyles(resetStylesArray(Object.values(state.styles || {}), action.payload)),
+                styles: createObject<VariableFontStyle, keyof VariableFontStyle>(
+                    resetStylesArray(Object.values(state.styles || {}), action.payload),
+                    'id'
+                ),
             };
 
         case ActionType.Edit:
