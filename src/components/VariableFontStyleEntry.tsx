@@ -12,10 +12,9 @@ import {
 } from '@frontify/fondue';
 import React, { Dispatch, FC } from 'react';
 
-import { getDimensionValue, printDimensionValue } from '../library/getDimensionValue';
-import { Action, ActionType, VariableFontStyle } from '../reducer';
+import { printDimensionValue } from '../library/printDimensionValue';
+import { Action, ActionType, VariableFontDimension, VariableFontStyle } from '../reducer';
 import style from '../style.module.css';
-import { VariableFontDimension } from '../VariableFontStylesBlock';
 import { FontDimensionRange } from './FontDimensionRange';
 import { RangeInput } from './RangeInput';
 
@@ -25,7 +24,6 @@ interface Props {
     isEditing: boolean;
     variableFontStyle: VariableFontStyle;
     variableFontName?: string;
-    variableFontDimensions: VariableFontDimension[];
 }
 
 const EXCLUDED_DIMENSIONS = ['wdth', 'wght'];
@@ -33,7 +31,7 @@ const EXCLUDED_DIMENSIONS = ['wdth', 'wght'];
 const getVariationSetting = (dimensions: Record<string, VariableFontDimension>) =>
     Object.values(dimensions)
         .filter((dimension) => !EXCLUDED_DIMENSIONS.includes(dimension.tag))
-        .map((dimension) => `"${dimension.tag}" ${getDimensionValue(dimension)}`)
+        .map((dimension) => `"${dimension.tag}" ${dimension.value}`)
         .join(', ');
 
 export const VariableFontStyleEntry: FC<Props> = ({
@@ -49,8 +47,8 @@ export const VariableFontStyleEntry: FC<Props> = ({
                     className={style['example-text']}
                     style={{
                         fontFamily: variableFontName,
-                        fontWeight: dimensions?.wght ? getDimensionValue(dimensions.wght) : undefined,
-                        fontStretch: dimensions?.wdth ? `${getDimensionValue(dimensions.wdth)}%` : undefined,
+                        fontWeight: dimensions?.wght ? dimensions.wght.value : undefined,
+                        fontStretch: dimensions?.wdth ? `${dimensions.wdth.value}%` : undefined,
                         fontVariationSettings: getVariationSetting(dimensions),
                     }}
                 >
@@ -198,7 +196,7 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                 </>
                             )}
                             {Object.values(dimensions).map((dimension) => (
-                                <FontDimensionRange key={dimension.tag} {...{ dimension, dispatch, isEditing, id }} />
+                                <FontDimensionRange key={dimension.tag} {...{ dimension, dispatch, id }} />
                             ))}
                         </div>
                     </Flyout>

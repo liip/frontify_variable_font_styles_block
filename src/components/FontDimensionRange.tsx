@@ -1,19 +1,17 @@
 import { Checkbox, CheckboxState, FormControl, Heading } from '@frontify/fondue';
 import React, { Dispatch, FC } from 'react';
 
-import { getDimensionValue, printDimensionValue } from '../library/getDimensionValue';
-import { Action, ActionType } from '../reducer';
-import { VariableFontDimension } from '../VariableFontStylesBlock';
+import { printDimensionValue } from '../library/printDimensionValue';
+import { Action, ActionType, VariableFontDimension } from '../reducer';
 import { RangeInput } from './RangeInput';
 
 interface FontDimensionRangeProps {
     dimension: VariableFontDimension;
     dispatch: Dispatch<Action>;
     id: string;
-    isEditing: boolean;
 }
 
-export const FontDimensionRange: FC<FontDimensionRangeProps> = ({ dimension, dispatch, id, isEditing }) => {
+export const FontDimensionRange: FC<FontDimensionRangeProps> = ({ dimension, dispatch, id }) => {
     return (
         <div style={{ marginBottom: '4rem' }}>
             <Heading>{`${dimension.tag}: ${printDimensionValue(dimension)}`}</Heading>
@@ -48,8 +46,8 @@ export const FontDimensionRange: FC<FontDimensionRangeProps> = ({ dimension, dis
                         labelPrefixRange="minValueRange"
                         labelPrefixText="minValue"
                         min={dimension.minValue}
-                        max={dimension.editorMaxValue || dimension.maxValue}
-                        value={dimension.editorMinValue || getDimensionValue(dimension)}
+                        max={dimension.editorMaxValue}
+                        value={dimension.editorMinValue}
                         onChange={(value) => {
                             dispatch({
                                 type: ActionType.EditDimensions,
@@ -68,9 +66,9 @@ export const FontDimensionRange: FC<FontDimensionRangeProps> = ({ dimension, dis
                         label="Default value"
                         labelPrefixRange="defaultValueRange"
                         labelPrefixText="defaultValue"
-                        min={dimension.editorMinValue || dimension.minValue}
-                        max={dimension.editorMaxValue || dimension.maxValue}
-                        value={dimension.editorDefault || getDimensionValue(dimension)}
+                        min={dimension.editorMinValue}
+                        max={dimension.editorMaxValue}
+                        value={dimension.editorDefault}
                         onChange={(value) => {
                             dispatch({
                                 type: ActionType.EditDimensions,
@@ -89,9 +87,9 @@ export const FontDimensionRange: FC<FontDimensionRangeProps> = ({ dimension, dis
                         label="Maximum value"
                         labelPrefixRange="maxValueRange"
                         labelPrefixText="maxValue"
-                        min={dimension.editorMinValue || dimension.minValue}
+                        min={dimension.editorMinValue}
                         max={dimension.maxValue}
-                        value={dimension.editorMaxValue || getDimensionValue(dimension)}
+                        value={dimension.editorMaxValue}
                         onChange={(value) => {
                             dispatch({
                                 type: ActionType.EditDimensions,
@@ -113,9 +111,9 @@ export const FontDimensionRange: FC<FontDimensionRangeProps> = ({ dimension, dis
                         label="Value"
                         labelPrefixRange="valueRange"
                         labelPrefixText="value"
-                        min={isEditing ? dimension.minValue : dimension.editorMinValue}
-                        max={isEditing ? dimension.maxValue : dimension.editorMaxValue}
-                        value={getDimensionValue(dimension)}
+                        min={dimension.minValue}
+                        max={dimension.maxValue}
+                        value={dimension.value}
                         onChange={(value) => {
                             dispatch({
                                 type: ActionType.EditDimensions,
