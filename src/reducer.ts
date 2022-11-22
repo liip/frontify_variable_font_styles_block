@@ -95,7 +95,7 @@ export const defaultDescriptionText = 'Empty description';
 const mapDefaultsToFontStyle = (defaults: VariableFontDefaultDimension): VariableFontDimension => ({
     tag: defaults.tag,
     minValue: defaults.minValue,
-    maxValue: defaults.minValue,
+    maxValue: defaults.maxValue,
     defaultValue: defaults.defaultValue,
     editorMinValue: defaults.minValue,
     editorMaxValue: defaults.maxValue,
