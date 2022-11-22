@@ -5,8 +5,6 @@ export interface VariableFontStyle {
     id: string;
     name: string;
     exampleText: string;
-    allowedColors: FrontifyColor[];
-    currentColor?: FrontifyColor;
     // Hardcode this to only use weight
     // TODO Find solution to add custom min and max values
     // TODO Find solution for arbitrary dimensions
@@ -57,7 +55,6 @@ export const defaultExampleText = 'The quick brown fox jumps over the lazy dog';
 
 const createDefaultFontStyle = (id: string): VariableFontStyle => ({
     id,
-    allowedColors: [],
     name: 'Unnamed style',
     exampleText: defaultExampleText,
     weight: '400',
@@ -71,19 +68,6 @@ export function reducer(state: State, action: Action): State {
                 [action.payload.id]: {
                     ...state[action.payload.id],
                     ...action.payload.partial,
-                },
-            };
-
-        case ActionType.EditAllowedColors:
-            const newColors = action.payload.isAdded
-                ? [...state[action.payload.id].allowedColors, action.payload.color]
-                : state[action.payload.id].allowedColors.filter((a) => a.name !== action.payload.color.name);
-
-            return {
-                ...state,
-                [action.payload.id]: {
-                    ...state[action.payload.id],
-                    allowedColors: newColors,
                 },
             };
 

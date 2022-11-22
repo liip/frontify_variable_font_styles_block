@@ -5,18 +5,14 @@ import {
     Color,
     Flyout,
     FormControl,
-    IconCross,
     IconMinusCircle,
     IconPen,
     TextInput,
     Textarea,
 } from '@frontify/fondue';
-import React, { ChangeEvent, Dispatch, FC } from 'react';
-import usePromise from 'react-use-promise';
-
+import { Dispatch, FC } from 'react';
 import { Action, ActionType, VariableFontStyle } from '../reducer';
 import style from '../style.module.css';
-import { ColorSelector, getUniqueColorName, toRgbaString } from './ColorSelector';
 
 interface Props {
     appBridge: AppBridgeBlock & { getColors: () => Promise<Color[]> };
@@ -27,14 +23,11 @@ interface Props {
 }
 
 export const VariableFontStyleEntry: FC<Props> = ({
-    appBridge,
     dispatch,
     isEditing,
-    variableFontStyle: { allowedColors, currentColor, exampleText, id, hasFlyoutOpen, name, weight },
+    variableFontStyle: { exampleText, id, hasFlyoutOpen, name, weight },
     variableFontName,
 }) => {
-    const [allColors /*, error, state*/] = usePromise(() => appBridge.getColors(), []);
-
     return (
         <div>
             <div className={style['example-text__wrapper']}>
@@ -43,7 +36,6 @@ export const VariableFontStyleEntry: FC<Props> = ({
                     style={{
                         fontFamily: variableFontName,
                         fontWeight: weight,
-                        color: !isEditing && currentColor ? toRgbaString(currentColor) : 'inherit',
                     }}
                 >
                     {exampleText}
@@ -54,62 +46,6 @@ export const VariableFontStyleEntry: FC<Props> = ({
                         <p className={style['style-info__weight']}>
                             Weight: <strong>{weight}</strong>
                         </p>
-                    </div>
-                    <div className={style['color-selectors-wrapper']}>
-                        {allowedColors.map((color) => (
-                            <ColorSelector
-                                key={getUniqueColorName(id, color)}
-                                color={color}
-                                id={id}
-                                isChecked={
-                                    currentColor
-                                        ? getUniqueColorName(id, color) === getUniqueColorName(id, currentColor)
-                                        : false
-                                }
-                                handleChange={() => {
-                                    dispatch({
-                                        type: ActionType.Edit,
-                                        payload: {
-                                            id,
-                                            partial: {
-                                                currentColor: color,
-                                            },
-                                        },
-                                    });
-                                }}
-                            />
-                        ))}
-                        <div>
-                            <input
-                                type="radio"
-                                id={`${id}-no-color`}
-                                value={`${id}-no-color`}
-                                checked={!currentColor}
-                                name={id}
-                                onChange={() => {
-                                    dispatch({
-                                        type: ActionType.Edit,
-                                        payload: {
-                                            id,
-                                            partial: {
-                                                currentColor: undefined,
-                                            },
-                                        },
-                                    });
-                                }}
-                                className="tw-sr-only"
-                            ></input>
-                            <label htmlFor={`${id}-no-color`}>
-                                <div
-                                    className={style['color-selector__reset']}
-                                    style={{
-                                        boxShadow: !currentColor ? '0 0 0 2px rgba(0,0,0,0.3)' : 'none',
-                                    }}
-                                >
-                                    <IconCross />
-                                </div>
-                            </label>
-                        </div>
                     </div>
                 </div>
                 {isEditing && (
@@ -210,41 +146,6 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                             });
                                         }}
                                     ></input>
-                                </FormControl>
-                                <FormControl
-                                    label={{
-                                        children: 'Allowed colors',
-                                        htmlFor: `style${id}allowedColors`,
-                                    }}
-                                >
-                                    <div className={style['color-selectors-wrapper']}>
-                                        {allColors &&
-                                            allColors.length > 0 &&
-                                            allColors.map((allColor) => (
-                                                <ColorSelector
-                                                    key={getUniqueColorName(id, allColor)}
-                                                    color={allColor}
-                                                    id={`selector${id}`}
-                                                    isChecked={allowedColors.some(
-                                                        (allowedColor) =>
-                                                            getUniqueColorName(id, allowedColor) ===
-                                                            getUniqueColorName(id, allColor)
-                                                    )}
-                                                    isMultiSelect
-                                                    handleChange={(e: ChangeEvent<HTMLInputElement>) => {
-                                                        const isChecked = e.target.checked;
-                                                        dispatch({
-                                                            type: ActionType.EditAllowedColors,
-                                                            payload: {
-                                                                id,
-                                                                color: allColor,
-                                                                isAdded: isChecked,
-                                                            },
-                                                        });
-                                                    }}
-                                                />
-                                            ))}
-                                    </div>
                                 </FormControl>
                             </div>
                         </Flyout>
