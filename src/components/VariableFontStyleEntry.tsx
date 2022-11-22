@@ -76,7 +76,7 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                             labelPrefixText="preferredText"
                                             min={dimension.editorMinValue}
                                             max={dimension.editorMaxValue}
-                                            value={dimension.value || dimension.editorDefault}
+                                            value={dimension.value}
                                             onChange={(value) => {
                                                 dispatch({
                                                     type: ActionType.EditDimensions,

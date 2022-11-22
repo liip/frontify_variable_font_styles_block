@@ -8,8 +8,8 @@ interface RangeInputProps {
     label: string;
     labelPrefixRange: string;
     labelPrefixText: string;
-    min?: string;
-    max?: string;
+    min: string;
+    max: string;
     onChange: (value: string) => void;
     value: string;
 }
