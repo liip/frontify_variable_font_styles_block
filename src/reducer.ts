@@ -1,6 +1,8 @@
 import { FrontifyColor } from '@frontify/app-bridge';
 import { nanoid } from 'nanoid';
 
+import { VariableFontDimension } from './VariableFontStylesBlock';
+
 export interface VariableFontStyle {
     id: string;
     name: string;
@@ -9,18 +11,29 @@ export interface VariableFontStyle {
     // TODO Find solution to add custom min and max values
     // TODO Find solution for arbitrary dimensions
     weight?: string;
+    dimensions: Record<string, VariableFontDimension>;
     hasFlyoutOpen?: boolean;
     fontDescription: string;
 }
 
-export type State = Record<string, VariableFontStyle>;
+export type State = {
+    dimensions: Record<string, VariableFontDimension>;
+    styles: Record<string, VariableFontStyle>;
+};
 
 export enum ActionType {
+    SetDimensions = 'setDimensions',
     Edit = 'edit',
     EditAllowedColors = 'editAllowedColors',
+    EditDimensions = 'editDimensions',
     Delete = 'delete',
     Add = 'add',
 }
+
+type ActionSetDimensions = {
+    type: ActionType.SetDimensions;
+    payload: Record<string, VariableFontDimension>;
+};
 
 type ActionEdit = {
     type: ActionType.Edit;
@@ -39,6 +52,11 @@ type ActionEditAllowedColors = {
     };
 };
 
+type ActionEditDimensions = {
+    type: ActionType.EditDimensions;
+    payload: { id: string; tag: string; partial: Partial<VariableFontDimension> };
+};
+
 type ActionDelete = {
     type: ActionType.Delete;
     payload: {
@@ -50,40 +68,89 @@ type ActionAdd = {
     type: ActionType.Add;
 };
 
-export type Action = ActionEdit | ActionEditAllowedColors | ActionDelete | ActionAdd;
+export type Action =
+    | ActionSetDimensions
+    | ActionEdit
+    | ActionEditAllowedColors
+    | ActionEditDimensions
+    | ActionDelete
+    | ActionAdd;
 
 export const defaultExampleText = 'The quick brown fox jumps over the lazy dog';
 export const defaultDescriptionText = 'Empty description';
 
-const createDefaultFontStyle = (id: string): VariableFontStyle => ({
+const createDefaultFontStyle = (id: string, dimensions: Record<string, VariableFontDimension>): VariableFontStyle => ({
     id,
     name: 'Unnamed style',
     exampleText: defaultExampleText,
     weight: '400',
     fontDescription: defaultDescriptionText,
+    dimensions,
 });
 
 export function reducer(state: State, action: Action): State {
     switch (action.type) {
+        case ActionType.SetDimensions:
+            const resetStylesArray = Object.values(state.styles || {}).map((style) => ({
+                ...style,
+                dimensions: action.payload,
+            }));
+            const resetStyles = resetStylesArray.reduce<Record<string, VariableFontStyle>>((accumulator, current) => {
+                accumulator[current.id] = current;
+                return accumulator;
+            }, {});
+
+            return {
+                dimensions: action.payload,
+                styles: resetStyles,
+            };
+
         case ActionType.Edit:
             return {
                 ...state,
-                [action.payload.id]: {
-                    ...state[action.payload.id],
-                    ...action.payload.partial,
+                styles: {
+                    ...state.styles,
+                    [action.payload.id]: {
+                        ...state.styles[action.payload.id],
+                        ...action.payload.partial,
+                    },
+                },
+            };
+
+        case ActionType.EditDimensions:
+            return {
+                ...state,
+                styles: {
+                    ...state.styles,
+                    [action.payload.id]: {
+                        ...state.styles[action.payload.id],
+                        dimensions: {
+                            ...state.styles[action.payload.id].dimensions,
+                            [action.payload.tag]: {
+                                ...state.styles[action.payload.id].dimensions[action.payload.tag],
+                                ...action.payload.partial,
+                            },
+                        },
+                    },
                 },
             };
 
         case ActionType.Delete:
-            const next = { ...state };
+            const next = { ...state.styles };
             delete next[action.payload.id];
-            return next;
+            return {
+                ...state,
+                styles: next,
+            };
 
         case ActionType.Add:
             const id = nanoid();
             return {
                 ...state,
-                [id]: createDefaultFontStyle(id),
+                styles: {
+                    ...state.styles,
+                    [id]: createDefaultFontStyle(id, state.dimensions),
+                },
             };
 
         default:
@@ -94,4 +161,4 @@ export function reducer(state: State, action: Action): State {
 export const getStylesArray = (styles: Record<string, VariableFontStyle>): VariableFontStyle[] =>
     Object.values(styles).filter((s: VariableFontStyle) => s);
 
-export const hasStyles = (state: State) => state && getStylesArray(state).length > 0;
+export const hasStyles = (state: State) => state && state.styles && getStylesArray(state.styles).length > 0;
