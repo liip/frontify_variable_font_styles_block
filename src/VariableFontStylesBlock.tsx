@@ -67,28 +67,28 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
             {!hasStyles(state) && <EmptyState isEditing={isEditing} dispatch={dispatch} />}
             {hasStyles(state) && (
                 <div className={style['styles-container']}>
-                    {currentAssets &&
-                        state.defaultDimensions.wght.minValue &&
-                        state.defaultDimensions.wght.maxValue &&
-                        state.defaultDimensions.wdth.minValue &&
-                        state.defaultDimensions.wdth.maxValue && (
-                            <style>
-                                {`
+                    {currentAssets && (
+                        <style>
+                            {`
                                 @font-face {
                                     font-family: "${currentAssets?.title}";
                                     src:
                                         url("${currentAssets.originUrl}")
                                         format("${extensionMap[currentAssets?.extension || 'truetype-variations']}");
-                                        font-weight: ${state.defaultDimensions.wght.minValue} ${
-                                    state.defaultDimensions.wght.maxValue
-                                };
-                                        font-stretch: ${state.defaultDimensions.wdth.minValue}% ${
-                                    state.defaultDimensions.wdth.maxValue
-                                }%;
+                                    ${
+                                        state.defaultDimensions.wght.minValue && state.defaultDimensions.wght.maxValue
+                                            ? `font-weight: ${state.defaultDimensions.wght.minValue} ${state.defaultDimensions.wght.maxValue};`
+                                            : ''
+                                    }
+                                    ${
+                                        state.defaultDimensions.wdth.minValue && state.defaultDimensions.wdth.maxValue
+                                            ? `font-stretch: ${state.defaultDimensions.wdth.minValue}% ${state.defaultDimensions.wdth.maxValue}%;`
+                                            : ''
+                                    }
                                 }
                             `}
-                            </style>
-                        )}
+                        </style>
+                    )}
                     <div className={style['style-container']}>
                         {getStylesArray(state.styles).map((variableFontStyle) => (
                             <VariableFontStyleEntry
