@@ -10,9 +10,13 @@ import {
     TextInput,
     Textarea,
 } from '@frontify/fondue';
-import { Dispatch, FC } from 'react';
-import { Action, ActionType, VariableFontStyle } from '../reducer';
+import React, { Dispatch, FC } from 'react';
+
+import { printDimensionValue } from '../library/printDimensionValue';
+import { Action, ActionType, VariableFontDimension, VariableFontStyle } from '../reducer';
 import style from '../style.module.css';
+import { FontDimensionRange } from './FontDimensionRange';
+import { RangeInput } from './RangeInput';
 
 interface Props {
     appBridge: AppBridgeBlock & { getColors: () => Promise<Color[]> };
@@ -22,10 +26,18 @@ interface Props {
     variableFontName?: string;
 }
 
+const EXCLUDED_DIMENSIONS = ['wdth', 'wght'];
+
+const getVariationSetting = (dimensions: Record<string, VariableFontDimension>) =>
+    Object.values(dimensions)
+        .filter((dimension) => !EXCLUDED_DIMENSIONS.includes(dimension.tag))
+        .map((dimension) => `"${dimension.tag}" ${dimension.value}`)
+        .join(', ');
+
 export const VariableFontStyleEntry: FC<Props> = ({
     dispatch,
     isEditing,
-    variableFontStyle: { exampleText, id, hasFlyoutOpen, name, weight, fontDescription },
+    variableFontStyle: { dimensions, fontDescription, exampleText, id, hasFlyoutOpen, name },
     variableFontName,
 }) => {
     return (
@@ -35,7 +47,9 @@ export const VariableFontStyleEntry: FC<Props> = ({
                     className={style['example-text']}
                     style={{
                         fontFamily: variableFontName,
-                        fontWeight: weight,
+                        fontWeight: dimensions?.wght ? dimensions.wght.value : undefined,
+                        fontStretch: dimensions?.wdth ? `${dimensions.wdth.value}%` : undefined,
+                        fontVariationSettings: getVariationSetting(dimensions),
                     }}
                 >
                     {exampleText}
@@ -44,148 +58,162 @@ export const VariableFontStyleEntry: FC<Props> = ({
                     <div>
                         <h6 className={style['style-info__name']}>{name}</h6>
                         <p className={style['style-info__weight']}>
-                            Weight: <strong>{weight}</strong>
-                        </p>
-                        <p className={style['style-info__weight']}>
                             Description: <strong>{fontDescription}</strong>
                         </p>
+                        {Object.values(dimensions).map((dimension) => (
+                            <div key={dimension.tag}>
+                                <p className={style['style-info__weight']}>
+                                    {dimension.tag}: <strong>{printDimensionValue(dimension)}</strong>
+                                </p>
+                                {dimension.isValueRange &&
+                                    dimension.editorDefault &&
+                                    dimension.editorMinValue &&
+                                    dimension.editorMaxValue && (
+                                        <RangeInput
+                                            id={`${id}${dimension.tag}`}
+                                            label="Set preferred range"
+                                            labelPrefixRange="preferredRange"
+                                            labelPrefixText="preferredText"
+                                            min={dimension.editorMinValue}
+                                            max={dimension.editorMaxValue}
+                                            value={dimension.value}
+                                            onChange={(value) => {
+                                                dispatch({
+                                                    type: ActionType.EditDimensions,
+                                                    payload: {
+                                                        id,
+                                                        tag: dimension.tag,
+                                                        partial: {
+                                                            value,
+                                                        },
+                                                    },
+                                                });
+                                            }}
+                                        />
+                                    )}
+                            </div>
+                        ))}
                     </div>
                 </div>
-                {isEditing && (
-                    <div className={style['example-text__edit-wrapper']}>
-                        <Flyout
-                            isOpen={hasFlyoutOpen}
-                            trigger={
-                                <Button
-                                    icon={<IconPen />}
-                                    onClick={() =>
-                                        dispatch({
-                                            type: ActionType.Edit,
-                                            payload: {
-                                                id,
-                                                partial: { hasFlyoutOpen: !hasFlyoutOpen },
-                                            },
-                                        })
-                                    }
-                                    style={ButtonStyle.Secondary}
-                                ></Button>
-                            }
-                            onOpenChange={(isOpen) =>
-                                dispatch({
-                                    type: ActionType.Edit,
-                                    payload: {
-                                        id,
-                                        partial: { hasFlyoutOpen: isOpen },
-                                    },
-                                })
-                            }
-                            onCancel={() =>
-                                dispatch({
-                                    type: ActionType.Edit,
-                                    payload: {
-                                        id,
-                                        partial: { hasFlyoutOpen: false },
-                                    },
-                                })
-                            }
-                        >
-                            <div className={style['overlay-container']}>
-                                <FormControl
-                                    label={{
-                                        children: 'Style name',
-                                        htmlFor: `style${id}styleName`,
-                                    }}
-                                >
-                                    <TextInput
-                                        value={name}
-                                        onChange={(value) =>
-                                            dispatch({
-                                                type: ActionType.Edit,
-                                                payload: {
-                                                    id,
-                                                    partial: { name: value },
-                                                },
-                                            })
-                                        }
-                                    ></TextInput>
-                                </FormControl>
-                                <FormControl
-                                    label={{
-                                        children: 'Style example text',
-                                        htmlFor: `style${id}exampleText`,
-                                    }}
-                                >
-                                    <Textarea
-                                        value={exampleText}
-                                        onInput={(value) =>
-                                            dispatch({
-                                                type: ActionType.Edit,
-                                                payload: {
-                                                    id,
-                                                    partial: { exampleText: value },
-                                                },
-                                            })
-                                        }
-                                    />
-                                </FormControl>
-                                <FormControl
-                                    label={{
-                                        children: 'Font description',
-                                        htmlFor: `style${id}description`,
-                                    }}
-                                >
-                                    <Textarea
-                                        value={fontDescription}
-                                        onInput={(value) =>
-                                            dispatch({
-                                                type: ActionType.Edit,
-                                                payload: {
-                                                    id,
-                                                    partial: { fontDescription: value },
-                                                },
-                                            })
-                                        }
-                                    />
-                                </FormControl>
-                                <FormControl
-                                    label={{
-                                        children: `Font weight: ${weight}`,
-                                        htmlFor: `style${id}fontWeight`,
-                                    }}
-                                >
-                                    <input
-                                        type="range"
-                                        min="100"
-                                        max="900"
-                                        value={weight}
-                                        onChange={(event) => {
-                                            dispatch({
-                                                type: ActionType.Edit,
-                                                payload: {
-                                                    id,
-                                                    partial: { weight: event.target.value },
-                                                },
-                                            });
+
+                <div className={style['example-text__edit-wrapper']}>
+                    <Flyout
+                        isOpen={hasFlyoutOpen}
+                        trigger={
+                            <Button
+                                icon={<IconPen />}
+                                onClick={() =>
+                                    dispatch({
+                                        type: ActionType.Edit,
+                                        payload: {
+                                            id,
+                                            partial: { hasFlyoutOpen: !hasFlyoutOpen },
+                                        },
+                                    })
+                                }
+                                style={ButtonStyle.Secondary}
+                            ></Button>
+                        }
+                        onOpenChange={(isOpen) =>
+                            dispatch({
+                                type: ActionType.Edit,
+                                payload: {
+                                    id,
+                                    partial: { hasFlyoutOpen: isOpen },
+                                },
+                            })
+                        }
+                        onCancel={() =>
+                            dispatch({
+                                type: ActionType.Edit,
+                                payload: {
+                                    id,
+                                    partial: { hasFlyoutOpen: false },
+                                },
+                            })
+                        }
+                    >
+                        <div className={style['overlay-container']}>
+                            {isEditing && (
+                                <>
+                                    <FormControl
+                                        label={{
+                                            children: 'Style name',
+                                            htmlFor: `style${id}styleName`,
                                         }}
-                                    ></input>
-                                </FormControl>
-                            </div>
-                        </Flyout>
-                        <Button
-                            hugWidth
-                            icon={<IconMinusCircle />}
-                            style={ButtonStyle.Secondary}
-                            onClick={() =>
-                                dispatch({
-                                    type: ActionType.Delete,
-                                    payload: {
-                                        id,
-                                    },
-                                })
-                            }
-                        />
-                    </div>
-                )}
+                                    >
+                                        <TextInput
+                                            value={name}
+                                            onChange={(value) =>
+                                                dispatch({
+                                                    type: ActionType.Edit,
+                                                    payload: {
+                                                        id,
+                                                        partial: { name: value },
+                                                    },
+                                                })
+                                            }
+                                        ></TextInput>
+                                    </FormControl>
+                                    <FormControl
+                                        label={{
+                                            children: 'Font description',
+                                            htmlFor: `style${id}description`,
+                                        }}
+                                    >
+                                        <Textarea
+                                            value={fontDescription}
+                                            onInput={(value) =>
+                                                dispatch({
+                                                    type: ActionType.Edit,
+                                                    payload: {
+                                                        id,
+                                                        partial: { fontDescription: value },
+                                                    },
+                                                })
+                                            }
+                                        />
+                                    </FormControl>
+                                    <FormControl
+                                        label={{
+                                            children: 'Style example text',
+                                            htmlFor: `style${id}exampleText`,
+                                        }}
+                                    >
+                                        <Textarea
+                                            value={exampleText}
+                                            onInput={(value) =>
+                                                dispatch({
+                                                    type: ActionType.Edit,
+                                                    payload: {
+                                                        id,
+                                                        partial: { exampleText: value },
+                                                    },
+                                                })
+                                            }
+                                        />
+                                    </FormControl>
+                                </>
+                            )}
+                            {Object.values(dimensions).map((dimension) => (
+                                <FontDimensionRange key={dimension.tag} {...{ dimension, dispatch, id }} />
+                            ))}
+                        </div>
+                    </Flyout>
+                    <Button
+                        hugWidth
+                        icon={<IconMinusCircle />}
+                        style={ButtonStyle.Secondary}
+                        onClick={() =>
+                            dispatch({
+                                type: ActionType.Delete,
+                                payload: {
+                                    id,
+                                },
+                            })
+                        }
+                    />
+                </div>
             </div>
         </div>
     );

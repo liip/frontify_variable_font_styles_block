@@ -1,11 +1,12 @@
 /* (c) Copyright Frontify Ltd., all rights reserved. */
 import { AppBridgeBlock, useBlockAssets, useBlockSettings, useEditorState } from '@frontify/app-bridge';
 import { Button, ButtonStyle, IconPlusCircle } from '@frontify/fondue';
+import { Font } from 'lib-font';
 import { FC, useEffect, useReducer } from 'react';
 
 import { EmptyState } from './components/EmptyState';
 import { VariableFontStyleEntry } from './components/VariableFontStyleEntry';
-import { ActionType, VariableFontStyle, getStylesArray, hasStyles, reducer } from './reducer';
+import { ActionType, State, VariableFontDefaultDimension, getStylesArray, hasStyles, reducer } from './reducer';
 import { ASSET_SETTINGS_ID } from './settings';
 import style from './style.module.css';
 
@@ -22,12 +23,43 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
     const [settings, setSettings] = useBlockSettings(appBridge);
     const { blockAssets } = useBlockAssets(appBridge);
     const currentAssets = blockAssets[ASSET_SETTINGS_ID]?.length > 0 ? blockAssets[ASSET_SETTINGS_ID][0] : undefined;
-    const [state, dispatch] = useReducer(reducer, (settings.fontStyles as Record<string, VariableFontStyle>) || {});
+    const [state, dispatch] = useReducer(
+        reducer,
+        (settings.fontStyles as State) || { styles: {}, defaultDimensions: {} }
+    );
 
     useEffect(() => {
         setSettings({ fontStyles: state });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state]);
+
+    useEffect(() => {
+        if (currentAssets) {
+            const font = new Font(currentAssets.fileName, {
+                skipStyleSheet: true,
+            });
+
+            font.src = currentAssets.originUrl;
+
+            font.onload = (event: { detail: { font: any } }) => {
+                const font = event.detail.font;
+                const otTables = font.opentype.tables;
+
+                // get variable font axes
+                const axes: Record<string, VariableFontDefaultDimension> = otTables.fvar.axes;
+                const dimensions = Object.values(axes);
+                const dimensionsObj = dimensions.reduce<Record<string, VariableFontDefaultDimension>>(
+                    (previous, current) => {
+                        previous[current.tag] = current;
+                        return previous;
+                    },
+                    {}
+                );
+
+                dispatch({ type: ActionType.SetDimensions, payload: dimensionsObj });
+            };
+        }
+    }, [currentAssets]);
 
     return (
         <div className={style.container}>
@@ -42,13 +74,22 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
                                     src:
                                         url("${currentAssets.originUrl}")
                                         format("${extensionMap[currentAssets?.extension || 'truetype-variations']}");
-                                    font-weight: 100 900;
+                                    ${
+                                        state.defaultDimensions.wght.minValue && state.defaultDimensions.wght.maxValue
+                                            ? `font-weight: ${state.defaultDimensions.wght.minValue} ${state.defaultDimensions.wght.maxValue};`
+                                            : ''
+                                    }
+                                    ${
+                                        state.defaultDimensions.wdth.minValue && state.defaultDimensions.wdth.maxValue
+                                            ? `font-stretch: ${state.defaultDimensions.wdth.minValue}% ${state.defaultDimensions.wdth.maxValue}%;`
+                                            : ''
+                                    }
                                 }
                             `}
                         </style>
                     )}
                     <div className={style['style-container']}>
-                        {getStylesArray(state).map((variableFontStyle) => (
+                        {getStylesArray(state.styles).map((variableFontStyle) => (
                             <VariableFontStyleEntry
                                 key={variableFontStyle.id}
                                 variableFontName={currentAssets?.title}

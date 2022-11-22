@@ -117,3 +117,19 @@
     background: white;
     border-radius: 100%;
 }
+
+.range-input {
+    position: relative;
+    padding-top: 10px;
+    margin-top: 20px;
+}
+
+.range-input__slider {
+    padding-top: 15px;
+}
+
+.range-input__text-field {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
