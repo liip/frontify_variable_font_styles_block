@@ -21,7 +21,6 @@ export interface VariableFontStyle {
     name: string;
     exampleText: string;
     dimensions: Record<string, VariableFontDimension>;
-    hasFlyoutOpen?: boolean;
     fontDescription: string;
 }
 
