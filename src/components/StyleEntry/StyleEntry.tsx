@@ -2,10 +2,11 @@ import { AppBridgeBlock } from '@frontify/app-bridge';
 import { Button, ButtonStyle, Color, IconMinusCircle, IconPen12 } from '@frontify/fondue';
 import React, { Dispatch, FC } from 'react';
 
-import { Action, ActionType, VariableFontDimension, VariableFontStyle } from '../reducer';
-import style from '../style.module.css';
-import { VariableFontEditable } from './VariableFontEditable';
-import { VariableFontRange } from './VariableFontRange';
+import { Action, ActionType, VariableFontStyle } from '../../reducer';
+import style from './StyleEntry.module.css';
+import { ExampleText } from '../ExampleText';
+import { EditableTextWrapper } from '../EditableTextWrapper/EditableTextWrapper';
+import { RangeSetting } from '../RangeSetting';
 
 interface Props {
     appBridge: AppBridgeBlock & { getColors: () => Promise<Color[]> };
@@ -15,15 +16,7 @@ interface Props {
     variableFontName?: string;
 }
 
-const EXCLUDED_DIMENSIONS = ['wdth', 'wght'];
-
-const getVariationSetting = (dimensions: Record<string, VariableFontDimension>) =>
-    Object.values(dimensions)
-        .filter((dimension) => !EXCLUDED_DIMENSIONS.includes(dimension.tag))
-        .map((dimension) => `"${dimension.tag}" ${dimension.value}`)
-        .join(', ');
-
-export const VariableFontStyleEntry: FC<Props> = ({
+export const StyleEntry: FC<Props> = ({
     dispatch,
     isEditing,
     variableFontStyle: { dimensions, fontDescription, exampleText, id, name },
@@ -31,22 +24,12 @@ export const VariableFontStyleEntry: FC<Props> = ({
 }) => {
     return (
         <div>
-            <div className={style['example-text__wrapper']}>
-                <p
-                    className={style['example-text']}
-                    style={{
-                        fontFamily: `"${variableFontName}"`,
-                        fontWeight: dimensions?.wght ? dimensions.wght.value : undefined,
-                        fontStretch: dimensions?.wdth ? `${dimensions.wdth.value}%` : undefined,
-                        fontVariationSettings: getVariationSetting(dimensions),
-                    }}
-                >
-                    {exampleText}
-                </p>
-                <div className={style['style-info-container']}>
+            <div className={style['style-entry__wrapper']}>
+                <ExampleText {...{ dimensions, exampleText, variableFontName }} />
+                <div className={style['style-entry__container']}>
                     <div className="tw-pb-4 tw-flex">
-                        <div className={style['style-info__header']}>
-                            <VariableFontEditable
+                        <div className={style['style-entry__header']}>
+                            <EditableTextWrapper
                                 isEditing={isEditing}
                                 onEditableSave={function (value: string): void {
                                     dispatch({
@@ -59,8 +42,8 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                 }}
                             >
                                 <h6 className="tw-font-bold tw-text-left">{name}</h6>
-                            </VariableFontEditable>
-                            <VariableFontEditable
+                            </EditableTextWrapper>
+                            <EditableTextWrapper
                                 isEditing={isEditing}
                                 hidePen
                                 onEditableSave={function (value: string): void {
@@ -77,7 +60,7 @@ export const VariableFontStyleEntry: FC<Props> = ({
                                     {fontDescription}
                                     {isEditing && <IconPen12 />}
                                 </p>
-                            </VariableFontEditable>
+                            </EditableTextWrapper>
                         </div>
                         <div className="tw-flex-shrink-0">
                             <Button
@@ -96,7 +79,7 @@ export const VariableFontStyleEntry: FC<Props> = ({
                         </div>
                     </div>
                     {Object.values(dimensions).map((dimension) => (
-                        <VariableFontRange
+                        <RangeSetting
                             key={dimension.tag}
                             id={id}
                             isEditing={isEditing}

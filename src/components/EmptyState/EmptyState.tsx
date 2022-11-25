@@ -1,7 +1,8 @@
 import { Button, ButtonStyle, Heading, IconPlusCircle, Text } from '@frontify/fondue';
 import React, { Dispatch, FC } from 'react';
 
-import { Action, ActionType, defaultExampleText } from '../reducer';
+import { Action, ActionType, defaultExampleText } from '../../reducer';
+import emptyState from '../EmptyState.module.css';
 import style from '../style.module.css';
 
 type Props = {
@@ -15,7 +16,7 @@ export const EmptyState: FC<Props> = ({ isEditing, dispatch, hasAssetLoaded }) =
         <>
             <p className={`${style['example-text']} ${style['example-text--blurred']}`}>{defaultExampleText}</p>
             {isEditing && (
-                <div className={style['empty-container']}>
+                <div className={emptyState['empty-container']}>
                     <div>
                         <Heading as="h1" size="large" weight="strong">
                             Take the following steps

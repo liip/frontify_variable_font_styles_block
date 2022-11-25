@@ -5,7 +5,7 @@ import { Font } from 'lib-font';
 import { FC, useEffect, useReducer } from 'react';
 
 import { EmptyState } from './components/EmptyState';
-import { VariableFontStyleEntry } from './components/VariableFontStyleEntry';
+import { StyleEntry } from './components/StyleEntry/StyleEntry';
 import { ActionType, State, VariableFontDefaultDimension, getStylesArray, hasStyles, reducer } from './reducer';
 import { ASSET_SETTINGS_ID } from './settings';
 import style from './style.module.css';
@@ -29,7 +29,6 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
     );
 
     useEffect(() => {
-        console.log('BLOCK STATE', state);
         setSettings({ fontStyles: state });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state]);
@@ -93,7 +92,7 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
                     )}
                     <div className={style['style-container']}>
                         {getStylesArray(state.styles).map((variableFontStyle) => (
-                            <VariableFontStyleEntry
+                            <StyleEntry
                                 key={variableFontStyle.id}
                                 variableFontName={currentAssets?.title}
                                 {...{ appBridge, dispatch, isEditing, variableFontStyle }}

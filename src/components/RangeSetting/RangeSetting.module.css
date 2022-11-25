@@ -1,0 +1,41 @@
+.range-setting {
+    border-top: 1px solid #eaebeb;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.range-setting__title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.range-setting__value-bar {
+    display: flex;
+    padding-top: 0.25rem;
+    justify-content: space-between;
+}
+
+.range-setting__value-field {
+    flex: 0 1 33.33333333333%;
+}
+
+.range-setting__value-field button {
+    text-align: right;
+}
+
+.range-setting__value-field div[data-test-id="editable-node-container"] {
+    display: inline-flex;
+    padding: 0;
+}
+
+.range-setting__value-field:nth-child(1) div[data-test-id="editable-node-container"] {
+    justify-content: flex-start;
+}
+
+.range-setting__value-field:nth-child(2) div[data-test-id="editable-node-container"] {
+    justify-content: center;
+}
+
+.range-setting__value-field:nth-child(3) div[data-test-id="editable-node-container"] {
+    justify-content: flex-end;
+}

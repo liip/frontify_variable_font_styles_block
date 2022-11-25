@@ -1,0 +1,22 @@
+.example-text {
+    font-size: 1.5rem;
+    line-height: 1.75rem;
+    pointer-events: none;
+    max-width: 400px;
+    flex: 0 1 400px;
+}
+
+.example-text--blurred {
+    filter: blur(3px);
+    opacity: 0.2;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+}
+
+.example-text__edit-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-left: 3rem;
+}
+

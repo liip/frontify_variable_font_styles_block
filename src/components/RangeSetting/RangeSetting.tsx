@@ -4,8 +4,12 @@ import { Handles, Rail, Slider, Tracks } from 'react-compound-slider';
 
 import { Action, ActionType, VariableFontDimension } from '../../reducer';
 import style from './VariableFontRange.module.css';
-import { Handle, SliderRail, Track } from '../Range';
-import { VariableFontEditable } from '../VariableFontEditable';
+import { Handle, SliderRail, Track } from '../RangeInput/RangeInput';
+import { EditableTextWrapper } from '../EditableTextWrapper/EditableTextWrapper';
+
+const MODE = 2;
+
+const STEP = 1;
 
 const sliderStyle = {
     position: 'relative',
@@ -14,17 +18,17 @@ const sliderStyle = {
     paddingBottom: '0.75rem',
 };
 
-interface VariableFontRangeProps {
+interface RangeSettingProps {
     dimension: VariableFontDimension;
     dispatch: Dispatch<Action>;
     id: string;
     isEditing?: boolean;
 }
 
-export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispatch, id, isEditing }) => {
+export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, isEditing }) => {
     return (
-        <div className={style['variable-font-range']}>
-            <div className={style['variable-font-range__title']}>
+        <div className={style['range-setting']}>
+            <div className={style['range-setting__title']}>
                 <Heading size="large" weight="strong">
                     {dimension.tag}
                 </Heading>
@@ -66,11 +70,11 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                     />
                 )}
             </div>
-            <div className={style['variable-font-range__value-bar']}>
+            <div className={style['range-setting__value-bar']}>
                 {(isEditing || dimension.isValueRange) && (
-                    <div className={style['variable-font-range__value-field']}>
+                    <div className={style['range-setting__value-field']}>
                         <span>Min</span>
-                        <VariableFontEditable
+                        <EditableTextWrapper
                             isEditing={isEditing && dimension.isValueRange}
                             onEditableSave={(value) => {
                                 const valueAsNumber = parseInt(value) || 0;
@@ -78,16 +82,13 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                                     editorMinValue: valueAsNumber,
                                 };
                                 // If value and defaultValue are smaller than min value they need to be updated here too
-                                console.log(valueAsNumber, dimension.value);
                                 if (dimension.value < valueAsNumber) {
-                                    // TODO adapt if we use custom steps
-                                    partial.value = valueAsNumber + 1;
+                                    partial.value = valueAsNumber + STEP;
                                 }
                                 if (dimension.defaultValue < valueAsNumber) {
-                                    // TODO adapt if we use custom steps
-                                    partial.defaultValue = valueAsNumber + 1;
+                                    partial.defaultValue = valueAsNumber + STEP;
                                 }
-                                console.log(partial);
+
                                 dispatch({
                                     type: ActionType.EditDimensions,
                                     payload: {
@@ -99,13 +100,13 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                             }}
                         >
                             <strong>{dimension.editorMinValue.toString()}</strong>
-                        </VariableFontEditable>
+                        </EditableTextWrapper>
                     </div>
                 )}
                 {dimension.isValueRange && isEditing && (
-                    <div className={`${style['variable-font-range__value-field']} tw-text-center`}>
+                    <div className={`${style['range-setting__value-field']} tw-text-center`}>
                         <span>Default</span>
-                        <VariableFontEditable
+                        <EditableTextWrapper
                             isEditing={isEditing && dimension.isValueRange}
                             onEditableSave={(value) => {
                                 dispatch({
@@ -122,17 +123,17 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                             }}
                         >
                             <strong className="tw-text-center">{dimension.editorDefault.toString()}</strong>
-                        </VariableFontEditable>
+                        </EditableTextWrapper>
                     </div>
                 )}
                 {(!dimension.isValueRange || !isEditing) && (
                     <div
-                        className={`${style['variable-font-range__value-field']}${
+                        className={`${style['range-setting__value-field']}${
                             isEditing || dimension.isValueRange ? ' tw-text-center' : ''
                         }`}
                     >
                         <span>Value</span>
-                        <VariableFontEditable
+                        <EditableTextWrapper
                             isEditing={isEditing}
                             onEditableSave={(value) => {
                                 dispatch({
@@ -148,13 +149,13 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                             }}
                         >
                             <strong className="tw-text-center">{dimension.value.toString()}</strong>
-                        </VariableFontEditable>
+                        </EditableTextWrapper>
                     </div>
                 )}
                 {(isEditing || dimension.isValueRange) && (
-                    <div className={`${style['variable-font-range__value-field']} tw-text-right`}>
+                    <div className={`${style['range-setting__value-field']} tw-text-right`}>
                         <span>Max</span>
-                        <VariableFontEditable
+                        <EditableTextWrapper
                             isEditing={isEditing && dimension.isValueRange}
                             onEditableSave={(value) => {
                                 const valueAsNumber = parseInt(value) || 0;
@@ -163,12 +164,10 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                                 };
                                 // If value and defaultValue are larger than max value they need to be updated here too
                                 if (dimension.value < valueAsNumber) {
-                                    // TODO adapt if we use custom steps
-                                    partial.value = valueAsNumber - 1;
+                                    partial.value = valueAsNumber - STEP;
                                 }
                                 if (dimension.defaultValue < valueAsNumber) {
-                                    // TODO adapt if we use custom steps
-                                    partial.defaultValue = valueAsNumber - 1;
+                                    partial.defaultValue = valueAsNumber - STEP;
                                 }
                                 dispatch({
                                     type: ActionType.EditDimensions,
@@ -181,18 +180,17 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                             }}
                         >
                             <strong className="tw-text-right">{dimension.editorMaxValue.toString()}</strong>
-                        </VariableFontEditable>
+                        </EditableTextWrapper>
                     </div>
                 )}
             </div>
             {isEditing && dimension.isValueRange && (
                 <Slider
-                    mode={2}
-                    step={1}
+                    mode={MODE}
+                    step={STEP}
                     domain={[dimension.minValue, dimension.maxValue]}
                     rootStyle={sliderStyle}
                     onUpdate={(values) => {
-                        console.log(values);
                         dispatch({
                             type: ActionType.EditDimensions,
                             payload: {
@@ -202,7 +200,7 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                                     editorMinValue: values[0],
                                     editorDefault: values[1],
                                     value: values[1],
-                                    editorMaxValue: values[2],
+                                    editorMaxValue: values[MODE],
                                 },
                             },
                         });
@@ -237,8 +235,8 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
             )}
             {isEditing && !dimension.isValueRange && (
                 <Slider
-                    mode={2}
-                    step={1}
+                    mode={MODE}
+                    step={STEP}
                     domain={[dimension.editorMinValue, dimension.editorMaxValue]}
                     rootStyle={sliderStyle}
                     onUpdate={(values) => {
@@ -282,8 +280,8 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
             )}
             {!isEditing && dimension.isValueRange && (
                 <Slider
-                    mode={2}
-                    step={1}
+                    mode={MODE}
+                    step={STEP}
                     domain={[dimension.editorMinValue, dimension.editorMaxValue]}
                     rootStyle={sliderStyle}
                     onUpdate={(values) => {
