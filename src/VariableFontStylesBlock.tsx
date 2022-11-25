@@ -64,7 +64,9 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
 
     return (
         <div className={style.container}>
-            {!hasStyles(state) && <EmptyState isEditing={isEditing} dispatch={dispatch} />}
+            {!hasStyles(state) && (
+                <EmptyState isEditing={isEditing} dispatch={dispatch} hasAssetLoaded={!!currentAssets} />
+            )}
             {hasStyles(state) && (
                 <div className={style['styles-container']}>
                     {currentAssets && (
