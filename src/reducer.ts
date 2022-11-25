@@ -3,16 +3,16 @@ import { nanoid } from 'nanoid';
 
 export interface VariableFontDefaultDimension {
     tag: string;
-    minValue: string;
-    maxValue: string;
-    defaultValue: string;
+    minValue: number;
+    maxValue: number;
+    defaultValue: number;
 }
 
 export interface VariableFontDimension extends VariableFontDefaultDimension {
-    editorMinValue: string;
-    editorMaxValue: string;
-    editorDefault: string;
-    value: string;
+    editorMinValue: number;
+    editorMaxValue: number;
+    editorDefault: number;
+    value: number;
     isValueRange: boolean;
 }
 

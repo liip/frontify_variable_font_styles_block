@@ -73,19 +73,32 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                         <VariableFontEditable
                             isEditing={isEditing && dimension.isValueRange}
                             onEditableSave={(value) => {
+                                const valueAsNumber = parseInt(value) || 0;
+                                const partial: Partial<VariableFontDimension> = {
+                                    editorMinValue: valueAsNumber,
+                                };
+                                // If value and defaultValue are smaller than min value they need to be updated here too
+                                console.log(valueAsNumber, dimension.value);
+                                if (dimension.value < valueAsNumber) {
+                                    // TODO adapt if we use custom steps
+                                    partial.value = valueAsNumber + 1;
+                                }
+                                if (dimension.defaultValue < valueAsNumber) {
+                                    // TODO adapt if we use custom steps
+                                    partial.defaultValue = valueAsNumber + 1;
+                                }
+                                console.log(partial);
                                 dispatch({
                                     type: ActionType.EditDimensions,
                                     payload: {
                                         id,
                                         tag: dimension.tag,
-                                        partial: {
-                                            editorMinValue: value,
-                                        },
+                                        partial,
                                     },
                                 });
                             }}
                         >
-                            <strong>{dimension.editorMinValue}</strong>
+                            <strong>{dimension.editorMinValue.toString()}</strong>
                         </VariableFontEditable>
                     </div>
                 )}
@@ -101,14 +114,14 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                                         id,
                                         tag: dimension.tag,
                                         partial: {
-                                            editorDefault: value,
-                                            value,
+                                            editorDefault: parseInt(value),
+                                            value: parseInt(value),
                                         },
                                     },
                                 });
                             }}
                         >
-                            <strong className="tw-text-center">{dimension.editorDefault}</strong>
+                            <strong className="tw-text-center">{dimension.editorDefault.toString()}</strong>
                         </VariableFontEditable>
                     </div>
                 )}
@@ -128,13 +141,13 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                                         id,
                                         tag: dimension.tag,
                                         partial: {
-                                            value,
+                                            value: parseInt(value),
                                         },
                                     },
                                 });
                             }}
                         >
-                            <strong className="tw-text-center">{dimension.value}</strong>
+                            <strong className="tw-text-center">{dimension.value.toString()}</strong>
                         </VariableFontEditable>
                     </div>
                 )}
@@ -144,14 +157,25 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                         <VariableFontEditable
                             isEditing={isEditing && dimension.isValueRange}
                             onEditableSave={(value) => {
+                                const valueAsNumber = parseInt(value) || 0;
+                                const partial: Partial<VariableFontDimension> = {
+                                    editorMaxValue: valueAsNumber,
+                                };
+                                // If value and defaultValue are larger than max value they need to be updated here too
+                                if (dimension.value < valueAsNumber) {
+                                    // TODO adapt if we use custom steps
+                                    partial.value = valueAsNumber - 1;
+                                }
+                                if (dimension.defaultValue < valueAsNumber) {
+                                    // TODO adapt if we use custom steps
+                                    partial.defaultValue = valueAsNumber - 1;
+                                }
                                 dispatch({
                                     type: ActionType.EditDimensions,
                                     payload: {
                                         id,
                                         tag: dimension.tag,
-                                        partial: {
-                                            editorMaxValue: value,
-                                        },
+                                        partial,
                                     },
                                 });
                             }}
@@ -165,7 +189,7 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                 <Slider
                     mode={2}
                     step={1}
-                    domain={[parseInt(dimension.minValue), parseInt(dimension.maxValue)]}
+                    domain={[dimension.minValue, dimension.maxValue]}
                     rootStyle={sliderStyle}
                     onUpdate={(values) => {
                         console.log(values);
@@ -175,19 +199,15 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                                 id,
                                 tag: dimension.tag,
                                 partial: {
-                                    editorMinValue: `${values[0]}`,
-                                    editorDefault: `${values[1]}`,
-                                    value: `${values[1]}`,
-                                    editorMaxValue: `${values[2]}`,
+                                    editorMinValue: values[0],
+                                    editorDefault: values[1],
+                                    value: values[1],
+                                    editorMaxValue: values[2],
                                 },
                             },
                         });
                     }}
-                    values={[
-                        parseInt(dimension.editorMinValue),
-                        parseInt(dimension.editorDefault),
-                        parseInt(dimension.editorMaxValue),
-                    ]}
+                    values={[dimension.editorMinValue, dimension.editorDefault, dimension.editorMaxValue]}
                 >
                     <Rail>{({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}</Rail>
                     <Handles>
@@ -197,14 +217,7 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                                     <Handle
                                         key={handle.id}
                                         handle={handle}
-                                        domain={
-                                            isEditing
-                                                ? [parseInt(dimension.minValue), parseInt(dimension.maxValue)]
-                                                : [
-                                                      parseInt(dimension.editorMinValue),
-                                                      parseInt(dimension.editorMaxValue),
-                                                  ]
-                                        }
+                                        domain={[dimension.minValue, dimension.maxValue]}
                                         getHandleProps={getHandleProps}
                                     />
                                 ))}
@@ -226,7 +239,7 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                 <Slider
                     mode={2}
                     step={1}
-                    domain={[parseInt(dimension.editorMinValue), parseInt(dimension.editorMaxValue)]}
+                    domain={[dimension.editorMinValue, dimension.editorMaxValue]}
                     rootStyle={sliderStyle}
                     onUpdate={(values) => {
                         console.log(values);
@@ -235,11 +248,11 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                             payload: {
                                 id,
                                 tag: dimension.tag,
-                                partial: { value: `${values[0]}` },
+                                partial: { value: values[0] },
                             },
                         });
                     }}
-                    values={[parseInt(dimension.value || '0')]}
+                    values={[dimension.value || 0]}
                 >
                     <Rail>{({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}</Rail>
                     <Handles>
@@ -249,14 +262,7 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                                     <Handle
                                         key={handle.id}
                                         handle={handle}
-                                        domain={
-                                            isEditing
-                                                ? [parseInt(dimension.minValue), parseInt(dimension.maxValue)]
-                                                : [
-                                                      parseInt(dimension.editorMinValue),
-                                                      parseInt(dimension.editorMaxValue),
-                                                  ]
-                                        }
+                                        domain={[dimension.minValue, dimension.maxValue]}
                                         getHandleProps={getHandleProps}
                                     />
                                 ))}
@@ -278,7 +284,7 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                 <Slider
                     mode={2}
                     step={1}
-                    domain={[parseInt(dimension.editorMinValue), parseInt(dimension.editorMaxValue)]}
+                    domain={[dimension.editorMinValue, dimension.editorMaxValue]}
                     rootStyle={sliderStyle}
                     onUpdate={(values) => {
                         console.log(values);
@@ -287,11 +293,11 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                             payload: {
                                 id,
                                 tag: dimension.tag,
-                                partial: { value: `${values[0]}` },
+                                partial: { value: values[0] },
                             },
                         });
                     }}
-                    values={[parseInt(dimension.value || '0')]}
+                    values={[dimension.value || 0]}
                 >
                     <Rail>{({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}</Rail>
                     <Handles>
@@ -301,14 +307,7 @@ export const VariableFontRange: FC<VariableFontRangeProps> = ({ dimension, dispa
                                     <Handle
                                         key={handle.id}
                                         handle={handle}
-                                        domain={
-                                            isEditing
-                                                ? [parseInt(dimension.minValue), parseInt(dimension.maxValue)]
-                                                : [
-                                                      parseInt(dimension.editorMinValue),
-                                                      parseInt(dimension.editorMaxValue),
-                                                  ]
-                                        }
+                                        domain={[dimension.editorMinValue, dimension.editorMaxValue]}
                                         getHandleProps={getHandleProps}
                                     />
                                 ))}
