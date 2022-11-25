@@ -35,7 +35,7 @@ export const VariableFontStyleEntry: FC<Props> = ({
                 <p
                     className={style['example-text']}
                     style={{
-                        fontFamily: variableFontName,
+                        fontFamily: `"${variableFontName}"`,
                         fontWeight: dimensions?.wght ? dimensions.wght.value : undefined,
                         fontStretch: dimensions?.wdth ? `${dimensions.wdth.value}%` : undefined,
                         fontVariationSettings: getVariationSetting(dimensions),
