@@ -131,6 +131,10 @@
     right: 0;
 }
 
+.style-info__header {
+    flex-grow: 1;
+}
+
 .style-info__header div[data-test-id="editable-node-container"] {
     justify-content: flex-start;
     display: inline-flex;
