@@ -17,9 +17,8 @@
 }
 
 .style-info-container {
-    padding-left: 2rem;
+    padding-left: 1rem;
     border-left: 1px solid #eaebeb;
-    margin-left: 2rem;
     max-width: 300px;
 }
 
@@ -38,7 +37,8 @@
 .example-text__wrapper {
     display: flex;
     justify-content: space-between;
-    
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .example-text__edit-wrapper {
