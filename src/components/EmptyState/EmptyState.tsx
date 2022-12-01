@@ -2,8 +2,8 @@ import { Button, ButtonStyle, Heading, IconPlusCircle, Text } from '@frontify/fo
 import React, { Dispatch, FC } from 'react';
 
 import { Action, ActionType, defaultExampleText } from '../../reducer';
-import emptyState from '../EmptyState.module.css';
-import style from '../style.module.css';
+import emptyState from './EmptyState.module.css';
+import style from '../../style.module.css';
 
 type Props = {
     dispatch: Dispatch<Action>;

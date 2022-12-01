@@ -3,7 +3,7 @@ import React, { Dispatch, FC } from 'react';
 import { Handles, Rail, Slider, Tracks } from 'react-compound-slider';
 
 import { Action, ActionType, VariableFontDimension } from '../../reducer';
-import style from './VariableFontRange.module.css';
+import style from './RangeSetting.module.css';
 import { Handle, SliderRail, Track } from '../RangeInput/RangeInput';
 import { EditableTextWrapper } from '../EditableTextWrapper/EditableTextWrapper';
 
