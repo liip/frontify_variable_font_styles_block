@@ -25,7 +25,7 @@ export const StyleEntry: FC<Props> = ({
     return (
         <div>
             <div className={style['style-entry__wrapper']}>
-                <ExampleText {...{ dimensions, exampleText, variableFontName }} />
+                <ExampleText {...{ dimensions, dispatch, exampleText, isEditing, id, variableFontName }} />
                 <div className={style['style-entry__container']}>
                     <div className="tw-pb-4 tw-flex">
                         <div className={style['style-entry__header']}>
