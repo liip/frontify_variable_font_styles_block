@@ -22,7 +22,7 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
     const isEditing = useEditorState(appBridge);
     const [settings, setSettings] = useBlockSettings(appBridge);
     const { blockAssets } = useBlockAssets(appBridge);
-    const currentAssets = blockAssets[ASSET_SETTINGS_ID]?.length > 0 ? blockAssets[ASSET_SETTINGS_ID][0] : undefined;
+    const currentAsset = blockAssets[ASSET_SETTINGS_ID]?.length > 0 ? blockAssets[ASSET_SETTINGS_ID][0] : undefined;
     const [state, dispatch] = useReducer(
         reducer,
         (settings.fontStyles as State) || { styles: {}, defaultDimensions: {} }
@@ -34,12 +34,12 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
     }, [state]);
 
     useEffect(() => {
-        if (currentAssets) {
-            const font = new Font(currentAssets.fileName, {
+        if (currentAsset && currentAsset.id !== state.assetId) {
+            const font = new Font(currentAsset.fileName, {
                 skipStyleSheet: true,
             });
 
-            font.src = currentAssets.originUrl;
+            font.src = currentAsset.originUrl;
 
             font.onload = (event: { detail: { font: any } }) => {
                 const font = event.detail.font;
@@ -57,25 +57,27 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
                 );
 
                 dispatch({ type: ActionType.SetDimensions, payload: dimensionsObj });
+                dispatch({ type: ActionType.EditAssetId, payload: { id: currentAsset.id } });
             };
         }
-    }, [currentAssets]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentAsset]);
 
     return (
         <div className={style.container}>
             {!hasStyles(state) && (
-                <EmptyState isEditing={isEditing} dispatch={dispatch} hasAssetLoaded={!!currentAssets} />
+                <EmptyState isEditing={isEditing} dispatch={dispatch} hasAssetLoaded={!!currentAsset} />
             )}
             {hasStyles(state) && (
                 <div className={style['styles-container']}>
-                    {currentAssets && (
+                    {currentAsset && (
                         <style>
                             {`
                                 @font-face {
-                                    font-family: "${currentAssets?.title}";
+                                    font-family: "${currentAsset?.title}";
                                     src:
-                                        url("${currentAssets.originUrl}")
-                                        format("${extensionMap[currentAssets?.extension || 'truetype-variations']}");
+                                        url("${currentAsset.originUrl}")
+                                        format("${extensionMap[currentAsset?.extension || 'truetype-variations']}");
                                     ${
                                         state.defaultDimensions.wght.minValue && state.defaultDimensions.wght.maxValue
                                             ? `font-weight: ${state.defaultDimensions.wght.minValue} ${state.defaultDimensions.wght.maxValue};`
@@ -94,7 +96,7 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
                         {getStylesArray(state.styles).map((variableFontStyle) => (
                             <StyleEntry
                                 key={variableFontStyle.id}
-                                variableFontName={currentAssets?.title}
+                                variableFontName={currentAsset?.title}
                                 {...{ appBridge, dispatch, isEditing, variableFontStyle }}
                             />
                         ))}

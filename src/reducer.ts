@@ -1,4 +1,3 @@
-import { FrontifyColor } from '@frontify/app-bridge';
 import { nanoid } from 'nanoid';
 
 export interface VariableFontDefaultDimension {
@@ -25,12 +24,14 @@ export interface VariableFontStyle {
 }
 
 export type State = {
+    assetId?: number;
     defaultDimensions: Record<string, VariableFontDefaultDimension>;
     styles: Record<string, VariableFontStyle>;
 };
 
 export enum ActionType {
     SetDimensions = 'setDimensions',
+    EditAssetId = 'editAssetId',
     Edit = 'edit',
     EditAllowedColors = 'editAllowedColors',
     EditDimensions = 'editDimensions',
@@ -43,20 +44,18 @@ type ActionSetDimensions = {
     payload: Record<string, VariableFontDefaultDimension>;
 };
 
+type ActionEditAssetId = {
+    type: ActionType.EditAssetId;
+    payload: {
+        id: number;
+    };
+};
+
 type ActionEdit = {
     type: ActionType.Edit;
     payload: {
         id: string;
         partial: Partial<VariableFontStyle>;
-    };
-};
-
-type ActionEditAllowedColors = {
-    type: ActionType.EditAllowedColors;
-    payload: {
-        id: string;
-        isAdded: boolean;
-        color: FrontifyColor;
     };
 };
 
@@ -78,8 +77,8 @@ type ActionAdd = {
 
 export type Action =
     | ActionSetDimensions
+    | ActionEditAssetId
     | ActionEdit
-    | ActionEditAllowedColors
     | ActionEditDimensions
     | ActionDelete
     | ActionAdd;
@@ -150,6 +149,13 @@ export function reducer(state: State, action: Action): State {
                 ),
             };
 
+        case ActionType.EditAssetId:
+            return {
+                ...state,
+                assetId: action.payload.id,
+            };
+
+        // TODO Rename to EditStyles
         case ActionType.Edit:
             return {
                 ...state,
