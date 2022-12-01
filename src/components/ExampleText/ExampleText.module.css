@@ -7,6 +7,10 @@
     text-align: left;
 }
 
+.example-text svg {
+    display: inline;
+}
+
 .example-text--blurred {
     filter: blur(3px);
     opacity: 0.2;
