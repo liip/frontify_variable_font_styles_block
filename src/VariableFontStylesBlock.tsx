@@ -2,20 +2,40 @@
 import { AppBridgeBlock, useBlockAssets, useBlockSettings, useEditorState } from '@frontify/app-bridge';
 import { Button, ButtonStyle, IconPlusCircle } from '@frontify/fondue';
 import { Font } from 'lib-font';
-import { FC, useEffect, useReducer } from 'react';
+import { FC, useEffect, useReducer, useState } from 'react';
 
 import { EmptyState } from './components/EmptyState';
 import { StyleEntry } from './components/StyleEntry/StyleEntry';
-import { ActionType, State, VariableFontDefaultDimension, getStylesArray, hasStyles, reducer } from './reducer';
+import {
+    ActionType,
+    State,
+    VariableFontDefaultDimension,
+    createObject,
+    getStylesArray,
+    hasStyles,
+    reducer,
+} from './reducer';
 import { ASSET_SETTINGS_ID } from './settings';
 import style from './style.module.css';
+
+interface Font {
+    opentype: {
+        tables: {
+            fvar?: {
+                axes: Record<string, VariableFontDefaultDimension>;
+            };
+        };
+    };
+}
 
 type Props = {
     appBridge: AppBridgeBlock;
 };
 
 const extensionMap: Record<string, string> = {
+    otf: 'opentype-variations',
     ttf: 'truetype-variations',
+    woff2: 'woff2-variations',
 };
 
 export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
@@ -27,6 +47,7 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
         reducer,
         (settings.fontStyles as State) || { styles: {}, defaultDimensions: {} }
     );
+    const [error, setError] = useState('');
 
     useEffect(() => {
         setSettings({ fontStyles: state });
@@ -38,26 +59,33 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
             const font = new Font(currentAsset.fileName, {
                 skipStyleSheet: true,
             });
-
             font.src = currentAsset.originUrl;
-
-            font.onload = (event: { detail: { font: any } }) => {
+            font.onload = (event: { detail: { font: Font } }) => {
                 const font = event.detail.font;
                 const otTables = font.opentype.tables;
 
-                // get variable font axes
-                const axes: Record<string, VariableFontDefaultDimension> = otTables.fvar.axes;
-                const dimensions = Object.values(axes);
-                const dimensionsObj = dimensions.reduce<Record<string, VariableFontDefaultDimension>>(
-                    (previous, current) => {
-                        previous[current.tag] = current;
-                        return previous;
-                    },
-                    {}
-                );
-
-                dispatch({ type: ActionType.SetDimensions, payload: dimensionsObj });
-                dispatch({ type: ActionType.EditAssetId, payload: { id: currentAsset.id } });
+                if (otTables.fvar) {
+                    const axes = otTables.fvar.axes;
+                    const axesArray = Object.values(axes);
+                    if (Object.values(axes).every((axis) => axis.minValue && axis.maxValue && axis.tag)) {
+                        const dimensionsArray = axesArray.map((axis) => ({
+                            ...axis,
+                            defaultValue: axis.defaultValue || (axis.maxValue - axis.minValue) / 2 + axis.minValue,
+                        }));
+                        const dimensions = createObject<
+                            VariableFontDefaultDimension,
+                            keyof VariableFontDefaultDimension
+                        >(dimensionsArray, 'tag');
+                        dispatch({ type: ActionType.SetDimensions, payload: dimensions });
+                        dispatch({ type: ActionType.EditAssetId, payload: { id: currentAsset.id } });
+                    } else {
+                        setError(
+                            'The variable font you added is missing data required for the block to work. Please add a different font.'
+                        );
+                    }
+                } else {
+                    setError('The font you added is no variable font. Please add a different font.');
+                }
             };
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -65,10 +93,11 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
 
     return (
         <div className={style.container}>
-            {!hasStyles(state) && (
+            {error && error}
+            {!hasStyles(state) && !error && (
                 <EmptyState isEditing={isEditing} dispatch={dispatch} hasAssetLoaded={!!currentAsset} />
             )}
-            {hasStyles(state) && (
+            {hasStyles(state) && !error && (
                 <div className={style['styles-container']}>
                     {currentAsset && (
                         <style>
@@ -77,7 +106,7 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
                                     font-family: "${currentAsset?.title}";
                                     src:
                                         url("${currentAsset.originUrl}")
-                                        format("${extensionMap[currentAsset?.extension || 'truetype-variations']}");
+                                        format("${extensionMap[currentAsset?.extension] || 'truetype-variations'}");
                                     ${
                                         state.defaultDimensions.wght.minValue && state.defaultDimensions.wght.maxValue
                                             ? `font-weight: ${state.defaultDimensions.wght.minValue} ${state.defaultDimensions.wght.maxValue};`
