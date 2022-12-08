@@ -1,5 +1,5 @@
 import { AppBridgeBlock } from '@frontify/app-bridge';
-import { Button, ButtonStyle, Color, IconMinusCircle, IconPen12 } from '@frontify/fondue';
+import { Button, ButtonStyle, Color, Heading, IconMinusCircle, IconPen12 } from '@frontify/fondue';
 import React, { Dispatch, FC } from 'react';
 
 import { Action, ActionType, VariableFontStyle } from '../../reducer';
@@ -41,7 +41,9 @@ export const StyleEntry: FC<Props> = ({
                                     });
                                 }}
                             >
-                                <h6 className="tw-font-bold tw-text-left">{name}</h6>
+                                <Heading size="x-large" weight="strong">
+                                    {name}
+                                </Heading>
                             </EditableTextWrapper>
                             <EditableTextWrapper
                                 isEditing={isEditing}

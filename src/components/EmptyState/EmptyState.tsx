@@ -1,9 +1,9 @@
 import { Button, ButtonStyle, Heading, IconPlusCircle, Text } from '@frontify/fondue';
 import React, { Dispatch, FC } from 'react';
 
-import { Action, ActionType, defaultExampleText } from '../../reducer';
+import { Action, ActionType } from '../../reducer';
 import emptyState from './EmptyState.module.css';
-import style from '../../style.module.css';
+import { ExampleTextPreview } from '../ExampleText';
 
 type Props = {
     dispatch: Dispatch<Action>;
@@ -14,12 +14,12 @@ type Props = {
 export const EmptyState: FC<Props> = ({ isEditing, dispatch, hasAssetLoaded }) => {
     return (
         <>
-            <p className={`${style['example-text']} ${style['example-text--blurred']}`}>{defaultExampleText}</p>
+            <ExampleTextPreview />
             {isEditing && (
                 <div className={emptyState['empty-container']}>
                     <div>
                         <Heading as="h1" size="large" weight="strong">
-                            Take the following steps
+                            👋 To get started with the Variable Font Styles block, take the following steps:
                         </Heading>
                         <Text as="p" size="large">
                             1. Add a variable font in the settings
@@ -33,7 +33,7 @@ export const EmptyState: FC<Props> = ({ isEditing, dispatch, hasAssetLoaded }) =
                             onClick={() => dispatch({ type: ActionType.Add })}
                             style={ButtonStyle.Secondary}
                         >
-                            Add font style
+                            Add font style {!hasAssetLoaded && ' (load font first)'}
                         </Button>
                     </div>
                 </div>

@@ -1,5 +1,5 @@
 import { IconPen16 } from '@frontify/fondue';
-import React, { Dispatch, FC } from 'react';
+import React, { Dispatch, FC, VFC } from 'react';
 import { Action, ActionType, VariableFontDimension, defaultExampleText } from '../../reducer';
 import { EditableTextWrapper } from '../EditableTextWrapper';
 
@@ -13,7 +13,7 @@ const getVariationSetting = (dimensions: Record<string, VariableFontDimension>) 
         .map((dimension) => `"${dimension.tag}" ${dimension.value}`)
         .join(', ');
 
-export const ExampleTextPreview = () => {
+export const ExampleTextPreview: VFC = () => {
     return <p className={`${style['example-text']} ${style['example-text--blurred']}`}>{defaultExampleText}</p>;
 };
 
