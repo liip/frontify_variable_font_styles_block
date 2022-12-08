@@ -2,7 +2,7 @@
 import { AppBridgeBlock, useBlockAssets, useBlockSettings, useEditorState } from '@frontify/app-bridge';
 import { Button, ButtonStyle, IconPlusCircle } from '@frontify/fondue';
 import { Font } from 'lib-font';
-import { FC, useEffect, useReducer, useState } from 'react';
+import React, { FC, useEffect, useReducer, useState } from 'react';
 
 import { EmptyState } from './components/EmptyState';
 import { StyleEntry } from './components/StyleEntry/StyleEntry';
