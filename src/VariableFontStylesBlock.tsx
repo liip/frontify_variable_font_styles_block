@@ -15,10 +15,10 @@ import {
     hasStyles,
     reducer,
 } from './reducer';
-import { ASSET_SETTINGS_ID } from './settings';
+import { ALLOWED_EXTENSIONS, ASSET_SETTINGS_ID } from './settings';
 import style from './style.module.css';
 
-interface Font {
+interface FontType {
     opentype: {
         tables: {
             fvar?: {
@@ -56,37 +56,43 @@ export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
 
     useEffect(() => {
         if (currentAsset && currentAsset.id !== state.assetId) {
-            const font = new Font(currentAsset.fileName, {
-                skipStyleSheet: true,
-            });
-            font.src = currentAsset.originUrl;
-            font.onload = (event: { detail: { font: Font } }) => {
-                const font = event.detail.font;
-                const otTables = font.opentype.tables;
+            if (ALLOWED_EXTENSIONS.includes(currentAsset.extension)) {
+                const font = new Font(currentAsset.fileName, {
+                    skipStyleSheet: true,
+                });
+                font.src = currentAsset.originUrl;
+                font.onload = (event: { detail: { font: FontType } }) => {
+                    const font = event.detail.font;
+                    const otTables = font.opentype.tables;
 
-                if (otTables.fvar) {
-                    const axes = otTables.fvar.axes;
-                    const axesArray = Object.values(axes);
-                    if (Object.values(axes).every((axis) => axis.minValue && axis.maxValue && axis.tag)) {
-                        const dimensionsArray = axesArray.map((axis) => ({
-                            ...axis,
-                            defaultValue: axis.defaultValue || (axis.maxValue - axis.minValue) / 2 + axis.minValue,
-                        }));
-                        const dimensions = createObject<
-                            VariableFontDefaultDimension,
-                            keyof VariableFontDefaultDimension
-                        >(dimensionsArray, 'tag');
-                        dispatch({ type: ActionType.SetDimensions, payload: dimensions });
-                        dispatch({ type: ActionType.EditAssetId, payload: { id: currentAsset.id } });
+                    if (otTables.fvar) {
+                        const axes = otTables.fvar.axes;
+                        const axesArray = Object.values(axes);
+                        if (Object.values(axes).every((axis) => axis.minValue && axis.maxValue && axis.tag)) {
+                            const dimensionsArray = axesArray.map((axis) => ({
+                                ...axis,
+                                defaultValue: axis.defaultValue || (axis.maxValue - axis.minValue) / 2 + axis.minValue,
+                            }));
+                            const dimensions = createObject<
+                                VariableFontDefaultDimension,
+                                keyof VariableFontDefaultDimension
+                            >(dimensionsArray, 'tag');
+                            dispatch({ type: ActionType.SetDimensions, payload: dimensions });
+                            dispatch({ type: ActionType.EditAssetId, payload: { id: currentAsset.id } });
+                        } else {
+                            setError(
+                                'The variable font you added is missing data required for the block to work. Please add a different font.'
+                            );
+                        }
                     } else {
                         setError(
-                            'The variable font you added is missing data required for the block to work. Please add a different font.'
+                            'The font you added does not seem to be a variable font. Please add a different font.'
                         );
                     }
-                } else {
-                    setError('The font you added is no variable font. Please add a different font.');
-                }
-            };
+                };
+            } else {
+                setError('The file you added is not a font file. Please add a font file.');
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentAsset]);
