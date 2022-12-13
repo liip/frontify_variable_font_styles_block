@@ -1,10 +1,9 @@
-/* (c) Copyright Frontify Ltd., all rights reserved. */
+import { defineBlock } from '@frontify/guideline-blocks-settings';
 
 import settings from './settings';
-// import { TestBlock } from './Test';
 import { VariableFontStylesBlock } from './VariableFontStylesBlock';
 
-export default {
+export default defineBlock({
     block: VariableFontStylesBlock,
     settings,
-};
+});

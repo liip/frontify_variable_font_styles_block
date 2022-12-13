@@ -1,6 +1,6 @@
-/* (c) Copyright Frontify Ltd., all rights reserved. */
-import { AppBridgeBlock, useBlockAssets, useBlockSettings, useEditorState } from '@frontify/app-bridge';
+import { useBlockAssets, useBlockSettings, useEditorState } from '@frontify/app-bridge';
 import { Button, ButtonStyle, IconPlusCircle } from '@frontify/fondue';
+import { BlockProps } from '@frontify/guideline-blocks-settings';
 import { Font } from 'lib-font';
 import React, { FC, useEffect, useReducer, useState } from 'react';
 
@@ -28,17 +28,13 @@ interface FontType {
     };
 }
 
-type Props = {
-    appBridge: AppBridgeBlock;
-};
-
 const extensionMap: Record<string, string> = {
     otf: 'opentype-variations',
     ttf: 'truetype-variations',
     woff2: 'woff2-variations',
 };
 
-export const VariableFontStylesBlock: FC<Props> = ({ appBridge }) => {
+export const VariableFontStylesBlock: FC<BlockProps> = ({ appBridge }) => {
     const isEditing = useEditorState(appBridge);
     const [settings, setSettings] = useBlockSettings(appBridge);
     const { blockAssets } = useBlockAssets(appBridge);
