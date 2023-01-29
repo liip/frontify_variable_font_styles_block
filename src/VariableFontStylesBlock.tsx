@@ -64,7 +64,14 @@ export const VariableFontStylesBlock: FC<BlockProps> = ({ appBridge }) => {
                     if (otTables.fvar) {
                         const axes = otTables.fvar.axes;
                         const axesArray = Object.values(axes);
-                        if (Object.values(axes).every((axis) => axis.minValue && axis.maxValue && axis.tag)) {
+                        if (
+                            axesArray.every(
+                                (axis) =>
+                                    axis.minValue !== (null || undefined) &&
+                                    axis.maxValue !== (null || undefined) &&
+                                    axis.tag
+                            )
+                        ) {
                             const dimensionsArray = axesArray.map((axis) => ({
                                 ...axis,
                                 defaultValue: axis.defaultValue || (axis.maxValue - axis.minValue) / 2 + axis.minValue,
