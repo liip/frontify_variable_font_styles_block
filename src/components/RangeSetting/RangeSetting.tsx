@@ -6,6 +6,7 @@ import { Action, ActionType, VariableFontDimension } from '../../reducer';
 import style from './RangeSetting.module.css';
 import { Handle, SliderRail, Track } from '../RangeInput/RangeInput';
 import { EditableTextWrapper } from '../EditableTextWrapper/EditableTextWrapper';
+import { useThrottleCallback } from '@react-hook/throttle';
 
 const MODE = 2;
 
@@ -25,7 +26,47 @@ interface RangeSettingProps {
     isEditing?: boolean;
 }
 
+const THROTTLE_FPS = 30;
+
 export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, isEditing }) => {
+    const handleRegularEdit: (values: readonly number[]) => void = useThrottleCallback(
+        (values: readonly number[]) =>
+            dispatch({
+                type: ActionType.EditDimensions,
+                payload: {
+                    id,
+                    tag: dimension.tag,
+                    partial: { value: values[0] },
+                },
+            }),
+        THROTTLE_FPS
+    );
+    const handleRangeEdit: (values: readonly number[]) => void = useThrottleCallback((values: readonly number[]) => {
+        dispatch({
+            type: ActionType.EditDimensions,
+            payload: {
+                id,
+                tag: dimension.tag,
+                partial: {
+                    editorMinValue: values[0],
+                    editorDefault: values[1],
+                    value: values[1],
+                    editorMaxValue: values[MODE],
+                },
+            },
+        });
+    }, THROTTLE_FPS);
+    const handleSettingRange: (values: readonly number[]) => void = useThrottleCallback((values: readonly number[]) => {
+        dispatch({
+            type: ActionType.EditDimensions,
+            payload: {
+                id,
+                tag: dimension.tag,
+                partial: { value: values[0] },
+            },
+        });
+    }, THROTTLE_FPS);
+
     return (
         <div className={style['range-setting']}>
             <div className={style['range-setting__title']}>
@@ -190,21 +231,7 @@ export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, i
                     step={STEP}
                     domain={[dimension.minValue, dimension.maxValue]}
                     rootStyle={sliderStyle}
-                    onUpdate={(values) => {
-                        dispatch({
-                            type: ActionType.EditDimensions,
-                            payload: {
-                                id,
-                                tag: dimension.tag,
-                                partial: {
-                                    editorMinValue: values[0],
-                                    editorDefault: values[1],
-                                    value: values[1],
-                                    editorMaxValue: values[MODE],
-                                },
-                            },
-                        });
-                    }}
+                    onUpdate={handleRangeEdit}
                     values={[dimension.editorMinValue, dimension.editorDefault, dimension.editorMaxValue]}
                 >
                     <Rail>{({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}</Rail>
@@ -239,17 +266,7 @@ export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, i
                     step={STEP}
                     domain={[dimension.editorMinValue, dimension.editorMaxValue]}
                     rootStyle={sliderStyle}
-                    onUpdate={(values) => {
-                        console.log(values);
-                        dispatch({
-                            type: ActionType.EditDimensions,
-                            payload: {
-                                id,
-                                tag: dimension.tag,
-                                partial: { value: values[0] },
-                            },
-                        });
-                    }}
+                    onUpdate={handleRegularEdit}
                     values={[dimension.value || 0]}
                 >
                     <Rail>{({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}</Rail>
@@ -284,17 +301,7 @@ export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, i
                     step={STEP}
                     domain={[dimension.editorMinValue, dimension.editorMaxValue]}
                     rootStyle={sliderStyle}
-                    onUpdate={(values) => {
-                        console.log(values);
-                        dispatch({
-                            type: ActionType.EditDimensions,
-                            payload: {
-                                id,
-                                tag: dimension.tag,
-                                partial: { value: values[0] },
-                            },
-                        });
-                    }}
+                    onUpdate={handleSettingRange}
                     values={[dimension.value || 0]}
                 >
                     <Rail>{({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}</Rail>
