@@ -31,7 +31,7 @@ interface RangeSettingProps {
 
 const THROTTLE_FPS = 30;
 
-const DEBOUNCE_MS = 1000;
+const DEBOUNCE_MS = 1500;
 
 export const RangeSetting: FC<RangeSettingProps> = ({
     dispatch,
