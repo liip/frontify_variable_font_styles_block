@@ -21,12 +21,12 @@ const sliderStyle = {
 };
 
 interface RangeSettingProps {
-    dimension: VariableFontDimension;
     dispatch: Dispatch<Action>;
     id: string;
     isEditing?: boolean;
     localDimension: VariableFontDimension;
     setLocalDimension: (dimension: VariableFontDimension) => void;
+    tag: string;
 }
 
 const THROTTLE_FPS = 30;
@@ -34,12 +34,12 @@ const THROTTLE_FPS = 30;
 const DEBOUNCE_MS = 1000;
 
 export const RangeSetting: FC<RangeSettingProps> = ({
-    dimension,
     dispatch,
     id,
     isEditing,
     localDimension,
     setLocalDimension,
+    tag,
 }) => {
     const debouncedEdit = useMemo(
         () =>
@@ -49,11 +49,11 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                     payload: {
                         id,
                         partial,
-                        tag: dimension.tag,
+                        tag,
                     },
                 });
             }, DEBOUNCE_MS),
-        [dimension.tag, dispatch, id]
+        [tag, dispatch, id]
     );
 
     const localEdit = useThrottleCallback((partial: Partial<VariableFontDimension>) => {
@@ -81,29 +81,29 @@ export const RangeSetting: FC<RangeSettingProps> = ({
         <div className={style['range-setting']}>
             <div className={style['range-setting__title']}>
                 <Heading size="large" weight="strong">
-                    {dimension.tag}
+                    {localDimension.tag}
                 </Heading>
                 {isEditing && (
                     <Switch
                         hug
                         label="Set range"
-                        name={`isRange${id}${dimension.tag}`}
-                        on={!!dimension.isValueRange}
+                        name={`isRange${id}${localDimension.tag}`}
+                        on={!!localDimension.isValueRange}
                         onChange={() => {
                             const partial: Partial<VariableFontDimension> = {
-                                isValueRange: !dimension.isValueRange,
+                                isValueRange: !localDimension.isValueRange,
                             };
 
-                            if (dimension.isValueRange) {
+                            if (localDimension.isValueRange) {
                                 // If we are currently in a range, we set the value to the default value from the range
-                                partial.value = dimension.editorDefault;
+                                partial.value = localDimension.editorDefault;
                             } else {
                                 // If we are currently not in a range, we set the range default to the value and make sure we don't violate min and max values
                                 partial.editorDefault = localDimension.value;
-                                if (localDimension.value < dimension.editorMinValue) {
+                                if (localDimension.value < localDimension.editorMinValue) {
                                     partial.editorMinValue = localDimension.value;
                                 }
-                                if (localDimension.value > dimension.editorMaxValue) {
+                                if (localDimension.value > localDimension.editorMaxValue) {
                                     partial.editorMaxValue = localDimension.value;
                                 }
                             }
@@ -112,7 +112,7 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                                 type: ActionType.EditDimensions,
                                 payload: {
                                     id,
-                                    tag: dimension.tag,
+                                    tag: localDimension.tag,
                                     partial,
                                 },
                             });
@@ -122,11 +122,11 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                 )}
             </div>
             <div className={style['range-setting__value-bar']}>
-                {(isEditing || dimension.isValueRange) && (
+                {(isEditing || localDimension.isValueRange) && (
                     <div className={style['range-setting__value-field']}>
                         <span>Min</span>
                         <EditableTextWrapper
-                            isEditing={isEditing && dimension.isValueRange}
+                            isEditing={isEditing && localDimension.isValueRange}
                             onEditableSave={(value) => {
                                 const valueAsNumber = parseInt(value) || 0;
                                 const partial: Partial<VariableFontDimension> = {
@@ -136,7 +136,7 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                                 if (localDimension.value < valueAsNumber) {
                                     partial.value = valueAsNumber + STEP;
                                 }
-                                if (dimension.defaultValue < valueAsNumber) {
+                                if (localDimension.defaultValue < valueAsNumber) {
                                     partial.defaultValue = valueAsNumber + STEP;
                                 }
 
@@ -144,27 +144,27 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                                     type: ActionType.EditDimensions,
                                     payload: {
                                         id,
-                                        tag: dimension.tag,
+                                        tag: localDimension.tag,
                                         partial,
                                     },
                                 });
                             }}
                         >
-                            <strong>{dimension.editorMinValue.toString()}</strong>
+                            <strong>{localDimension.editorMinValue.toString()}</strong>
                         </EditableTextWrapper>
                     </div>
                 )}
-                {dimension.isValueRange && isEditing && (
+                {localDimension.isValueRange && isEditing && (
                     <div className={`${style['range-setting__value-field']} tw-text-center`}>
                         <span>Default</span>
                         <EditableTextWrapper
-                            isEditing={isEditing && dimension.isValueRange}
+                            isEditing={isEditing && localDimension.isValueRange}
                             onEditableSave={(value) => {
                                 dispatch({
                                     type: ActionType.EditDimensions,
                                     payload: {
                                         id,
-                                        tag: dimension.tag,
+                                        tag: localDimension.tag,
                                         partial: {
                                             editorDefault: parseInt(value),
                                             value: parseInt(value),
@@ -173,14 +173,14 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                                 });
                             }}
                         >
-                            <strong className="tw-text-center">{dimension.editorDefault.toString()}</strong>
+                            <strong className="tw-text-center">{localDimension.editorDefault.toString()}</strong>
                         </EditableTextWrapper>
                     </div>
                 )}
-                {(!dimension.isValueRange || !isEditing) && (
+                {(!localDimension.isValueRange || !isEditing) && (
                     <div
                         className={`${style['range-setting__value-field']}${
-                            isEditing || dimension.isValueRange ? ' tw-text-center' : ''
+                            isEditing || localDimension.isValueRange ? ' tw-text-center' : ''
                         }`}
                     >
                         <span>Value</span>
@@ -191,7 +191,7 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                                     type: ActionType.EditDimensions,
                                     payload: {
                                         id,
-                                        tag: dimension.tag,
+                                        tag: localDimension.tag,
                                         partial: {
                                             value: parseInt(value),
                                         },
@@ -203,11 +203,11 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                         </EditableTextWrapper>
                     </div>
                 )}
-                {(isEditing || dimension.isValueRange) && (
+                {(isEditing || localDimension.isValueRange) && (
                     <div className={`${style['range-setting__value-field']} tw-text-right`}>
                         <span>Max</span>
                         <EditableTextWrapper
-                            isEditing={isEditing && dimension.isValueRange}
+                            isEditing={isEditing && localDimension.isValueRange}
                             onEditableSave={(value) => {
                                 const valueAsNumber = parseInt(value) || 0;
                                 const partial: Partial<VariableFontDimension> = {
@@ -217,25 +217,25 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                                 if (localDimension.value < valueAsNumber) {
                                     partial.value = valueAsNumber - STEP;
                                 }
-                                if (dimension.defaultValue < valueAsNumber) {
+                                if (localDimension.defaultValue < valueAsNumber) {
                                     partial.defaultValue = valueAsNumber - STEP;
                                 }
                                 dispatch({
                                     type: ActionType.EditDimensions,
                                     payload: {
                                         id,
-                                        tag: dimension.tag,
+                                        tag: localDimension.tag,
                                         partial,
                                     },
                                 });
                             }}
                         >
-                            <strong className="tw-text-right">{dimension.editorMaxValue.toString()}</strong>
+                            <strong className="tw-text-right">{localDimension.editorMaxValue.toString()}</strong>
                         </EditableTextWrapper>
                     </div>
                 )}
             </div>
-            {isEditing && dimension.isValueRange && (
+            {isEditing && localDimension.isValueRange && (
                 <Slider
                     mode={MODE}
                     step={STEP}
@@ -274,7 +274,7 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                     </Tracks>
                 </Slider>
             )}
-            {isEditing && !dimension.isValueRange && (
+            {isEditing && !localDimension.isValueRange && (
                 <Slider
                     mode={MODE}
                     step={STEP}
@@ -309,7 +309,7 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                     </Tracks>
                 </Slider>
             )}
-            {!isEditing && dimension.isValueRange && (
+            {!isEditing && localDimension.isValueRange && (
                 <Slider
                     mode={MODE}
                     step={STEP}

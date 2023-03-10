@@ -1,6 +1,6 @@
 import { AppBridgeBlock } from '@frontify/app-bridge';
 import { Button, ButtonStyle, Color, Heading, IconMinusCircle, IconPen12 } from '@frontify/fondue';
-import React, { Dispatch, FC, useEffect, useState } from 'react';
+import React, { Dispatch, FC, useState } from 'react';
 
 import { Action, ActionType, VariableFontStyle } from '../../reducer';
 import style from './StyleEntry.module.css';
@@ -22,12 +22,7 @@ export const StyleEntry: FC<Props> = ({
     variableFontStyle: { dimensions, fontDescription, exampleText, id, name },
     variableFontName,
 }) => {
-    console.log('DIMS', dimensions, id);
     const [localDimensions, setLocalDimensions] = useState(dimensions);
-
-    useEffect(() => {
-        console.log(localDimensions);
-    }, [localDimensions]);
 
     return (
         <div>
@@ -92,12 +87,12 @@ export const StyleEntry: FC<Props> = ({
                             key={dimension.tag}
                             id={id}
                             isEditing={isEditing}
-                            dimension={dimension}
                             dispatch={dispatch}
                             localDimension={localDimensions[dimension.tag]}
                             setLocalDimension={(localDimension) =>
                                 setLocalDimensions({ ...localDimensions, [dimension.tag]: localDimension })
                             }
+                            tag={dimension.tag} // Pass non-local tag to enable debounce
                         />
                     ))}
                 </div>
