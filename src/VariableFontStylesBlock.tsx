@@ -46,6 +46,7 @@ export const VariableFontStylesBlock: FC<BlockProps> = ({ appBridge }) => {
     const [error, setError] = useState('');
 
     useEffect(() => {
+        console.log(state);
         setSettings({ fontStyles: state });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state]);

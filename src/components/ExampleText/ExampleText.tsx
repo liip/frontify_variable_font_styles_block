@@ -18,20 +18,20 @@ export const ExampleTextPreview: VFC = () => {
 };
 
 interface ExampleTextProps {
-    dimensions: Record<string, VariableFontDimension>;
     dispatch: Dispatch<Action>;
     exampleText: string;
     id: string;
     isEditing: boolean;
+    localDimensions: Record<string, VariableFontDimension>;
     variableFontName?: string;
 }
 
 export const ExampleText: FC<ExampleTextProps> = ({
-    dimensions,
     dispatch,
     exampleText,
     isEditing,
     id,
+    localDimensions,
     variableFontName,
 }) => {
     return (
@@ -53,9 +53,9 @@ export const ExampleText: FC<ExampleTextProps> = ({
                     className={style['example-text']}
                     style={{
                         fontFamily: `"${variableFontName}"`,
-                        fontWeight: dimensions?.wght ? dimensions.wght.value : undefined,
-                        fontStretch: dimensions?.wdth ? `${dimensions.wdth.value}%` : undefined,
-                        fontVariationSettings: getVariationSetting(dimensions),
+                        fontWeight: localDimensions?.wght ? localDimensions.wght.value : undefined,
+                        fontStretch: localDimensions?.wdth ? `${localDimensions.wdth.value}%` : undefined,
+                        fontVariationSettings: getVariationSetting(localDimensions),
                     }}
                 >
                     {exampleText}

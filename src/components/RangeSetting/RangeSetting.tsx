@@ -1,5 +1,5 @@
 import { Heading, Switch, SwitchSize } from '@frontify/fondue';
-import React, { Dispatch, FC } from 'react';
+import React, { Dispatch, FC, useMemo } from 'react';
 import { Handles, Rail, Slider, Tracks } from 'react-compound-slider';
 
 import { Action, ActionType, VariableFontDimension } from '../../reducer';
@@ -7,6 +7,7 @@ import style from './RangeSetting.module.css';
 import { Handle, SliderRail, Track } from '../RangeInput/RangeInput';
 import { EditableTextWrapper } from '../EditableTextWrapper/EditableTextWrapper';
 import { useThrottleCallback } from '@react-hook/throttle';
+import debounce from 'lodash.debounce';
 
 const MODE = 2;
 
@@ -24,48 +25,57 @@ interface RangeSettingProps {
     dispatch: Dispatch<Action>;
     id: string;
     isEditing?: boolean;
+    localDimension: VariableFontDimension;
+    setLocalDimension: (dimension: VariableFontDimension) => void;
 }
 
 const THROTTLE_FPS = 30;
 
-export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, isEditing }) => {
-    const handleRegularEdit: (values: readonly number[]) => void = useThrottleCallback(
-        (values: readonly number[]) =>
-            dispatch({
-                type: ActionType.EditDimensions,
-                payload: {
-                    id,
-                    tag: dimension.tag,
-                    partial: { value: values[0] },
-                },
-            }),
-        THROTTLE_FPS
+const DEBOUNCE_MS = 1000;
+
+export const RangeSetting: FC<RangeSettingProps> = ({
+    dimension,
+    dispatch,
+    id,
+    isEditing,
+    localDimension,
+    setLocalDimension,
+}) => {
+    const debouncedEdit = useMemo(
+        () =>
+            debounce((partial: Partial<VariableFontDimension>) => {
+                dispatch({
+                    type: ActionType.EditDimensions,
+                    payload: {
+                        id,
+                        partial,
+                        tag: dimension.tag,
+                    },
+                });
+            }, DEBOUNCE_MS),
+        [dimension.tag, dispatch, id]
     );
-    const handleRangeEdit: (values: readonly number[]) => void = useThrottleCallback((values: readonly number[]) => {
-        dispatch({
-            type: ActionType.EditDimensions,
-            payload: {
-                id,
-                tag: dimension.tag,
-                partial: {
-                    editorMinValue: values[0],
-                    editorDefault: values[1],
-                    value: values[1],
-                    editorMaxValue: values[MODE],
-                },
-            },
-        });
+
+    const localEdit = useThrottleCallback((partial: Partial<VariableFontDimension>) => {
+        setLocalDimension({ ...localDimension, ...partial });
     }, THROTTLE_FPS);
-    const handleSettingRange: (values: readonly number[]) => void = useThrottleCallback((values: readonly number[]) => {
-        dispatch({
-            type: ActionType.EditDimensions,
-            payload: {
-                id,
-                tag: dimension.tag,
-                partial: { value: values[0] },
-            },
-        });
-    }, THROTTLE_FPS);
+
+    const handleRegularEdit = (values: readonly number[]) => {
+        const partial = { value: values[0] };
+        localEdit(partial);
+        debouncedEdit(partial);
+    };
+
+    const handleRangeEdit = (values: readonly number[]) => {
+        const partial = {
+            editorMinValue: values[0],
+            editorDefault: values[1],
+            value: values[1],
+            editorMaxValue: values[MODE],
+        };
+        localEdit(partial);
+        debouncedEdit(partial);
+    };
 
     return (
         <div className={style['range-setting']}>
@@ -89,12 +99,12 @@ export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, i
                                 partial.value = dimension.editorDefault;
                             } else {
                                 // If we are currently not in a range, we set the range default to the value and make sure we don't violate min and max values
-                                partial.editorDefault = dimension.value;
-                                if (dimension.value < dimension.editorMinValue) {
-                                    partial.editorMinValue = dimension.value;
+                                partial.editorDefault = localDimension.value;
+                                if (localDimension.value < dimension.editorMinValue) {
+                                    partial.editorMinValue = localDimension.value;
                                 }
-                                if (dimension.value > dimension.editorMaxValue) {
-                                    partial.editorMaxValue = dimension.value;
+                                if (localDimension.value > dimension.editorMaxValue) {
+                                    partial.editorMaxValue = localDimension.value;
                                 }
                             }
 
@@ -123,7 +133,7 @@ export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, i
                                     editorMinValue: valueAsNumber,
                                 };
                                 // If value and defaultValue are smaller than min value they need to be updated here too
-                                if (dimension.value < valueAsNumber) {
+                                if (localDimension.value < valueAsNumber) {
                                     partial.value = valueAsNumber + STEP;
                                 }
                                 if (dimension.defaultValue < valueAsNumber) {
@@ -189,7 +199,7 @@ export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, i
                                 });
                             }}
                         >
-                            <strong className="tw-text-center">{dimension.value.toString()}</strong>
+                            <strong className="tw-text-center">{localDimension.value.toString()}</strong>
                         </EditableTextWrapper>
                     </div>
                 )}
@@ -204,7 +214,7 @@ export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, i
                                     editorMaxValue: valueAsNumber,
                                 };
                                 // If value and defaultValue are larger than max value they need to be updated here too
-                                if (dimension.value < valueAsNumber) {
+                                if (localDimension.value < valueAsNumber) {
                                     partial.value = valueAsNumber - STEP;
                                 }
                                 if (dimension.defaultValue < valueAsNumber) {
@@ -229,10 +239,14 @@ export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, i
                 <Slider
                     mode={MODE}
                     step={STEP}
-                    domain={[dimension.minValue, dimension.maxValue]}
+                    domain={[localDimension.minValue, localDimension.maxValue]}
                     rootStyle={sliderStyle}
                     onUpdate={handleRangeEdit}
-                    values={[dimension.editorMinValue, dimension.editorDefault, dimension.editorMaxValue]}
+                    values={[
+                        localDimension.editorMinValue,
+                        localDimension.editorDefault,
+                        localDimension.editorMaxValue,
+                    ]}
                 >
                     <Rail>{({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}</Rail>
                     <Handles>
@@ -242,7 +256,7 @@ export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, i
                                     <Handle
                                         key={handle.id}
                                         handle={handle}
-                                        domain={[dimension.minValue, dimension.maxValue]}
+                                        domain={[localDimension.minValue, localDimension.maxValue]}
                                         getHandleProps={getHandleProps}
                                     />
                                 ))}
@@ -264,10 +278,10 @@ export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, i
                 <Slider
                     mode={MODE}
                     step={STEP}
-                    domain={[dimension.editorMinValue, dimension.editorMaxValue]}
+                    domain={[localDimension.editorMinValue, localDimension.editorMaxValue]}
                     rootStyle={sliderStyle}
                     onUpdate={handleRegularEdit}
-                    values={[dimension.value || 0]}
+                    values={[localDimension.value || 0]}
                 >
                     <Rail>{({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}</Rail>
                     <Handles>
@@ -277,7 +291,7 @@ export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, i
                                     <Handle
                                         key={handle.id}
                                         handle={handle}
-                                        domain={[dimension.minValue, dimension.maxValue]}
+                                        domain={[localDimension.minValue, localDimension.maxValue]}
                                         getHandleProps={getHandleProps}
                                     />
                                 ))}
@@ -299,10 +313,10 @@ export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, i
                 <Slider
                     mode={MODE}
                     step={STEP}
-                    domain={[dimension.editorMinValue, dimension.editorMaxValue]}
+                    domain={[localDimension.editorMinValue, localDimension.editorMaxValue]}
                     rootStyle={sliderStyle}
-                    onUpdate={handleSettingRange}
-                    values={[dimension.value || 0]}
+                    onUpdate={handleRegularEdit}
+                    values={[localDimension.value || 0]}
                 >
                     <Rail>{({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}</Rail>
                     <Handles>
@@ -312,7 +326,7 @@ export const RangeSetting: FC<RangeSettingProps> = ({ dimension, dispatch, id, i
                                     <Handle
                                         key={handle.id}
                                         handle={handle}
-                                        domain={[dimension.editorMinValue, dimension.editorMaxValue]}
+                                        domain={[localDimension.editorMinValue, localDimension.editorMaxValue]}
                                         getHandleProps={getHandleProps}
                                     />
                                 ))}

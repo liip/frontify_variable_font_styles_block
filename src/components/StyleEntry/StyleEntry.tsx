@@ -1,6 +1,6 @@
 import { AppBridgeBlock } from '@frontify/app-bridge';
 import { Button, ButtonStyle, Color, Heading, IconMinusCircle, IconPen12 } from '@frontify/fondue';
-import React, { Dispatch, FC } from 'react';
+import React, { Dispatch, FC, useEffect, useState } from 'react';
 
 import { Action, ActionType, VariableFontStyle } from '../../reducer';
 import style from './StyleEntry.module.css';
@@ -22,10 +22,17 @@ export const StyleEntry: FC<Props> = ({
     variableFontStyle: { dimensions, fontDescription, exampleText, id, name },
     variableFontName,
 }) => {
+    console.log('DIMS', dimensions, id);
+    const [localDimensions, setLocalDimensions] = useState(dimensions);
+
+    useEffect(() => {
+        console.log(localDimensions);
+    }, [localDimensions]);
+
     return (
         <div>
             <div className={style['style-entry__wrapper']}>
-                <ExampleText {...{ dimensions, dispatch, exampleText, isEditing, id, variableFontName }} />
+                <ExampleText {...{ dispatch, exampleText, isEditing, id, localDimensions, variableFontName }} />
                 <div className={style['style-entry__container']}>
                     <div className="tw-pb-4 tw-flex">
                         <div className={style['style-entry__header']}>
@@ -87,6 +94,10 @@ export const StyleEntry: FC<Props> = ({
                             isEditing={isEditing}
                             dimension={dimension}
                             dispatch={dispatch}
+                            localDimension={localDimensions[dimension.tag]}
+                            setLocalDimension={(localDimension) =>
+                                setLocalDimensions({ ...localDimensions, [dimension.tag]: localDimension })
+                            }
                         />
                     ))}
                 </div>
