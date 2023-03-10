@@ -1,7 +1,7 @@
 {
     "name": "variable_font_styles_block",
     "version": "1.0.0",
-    "main": "src/index.tsx",
+    "main": "src/index.ts",
     "scripts": {
         "serve": "frontify-cli block serve --entryPath src/index.tsx"
     },
