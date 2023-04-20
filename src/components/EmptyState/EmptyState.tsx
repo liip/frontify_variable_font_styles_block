@@ -25,7 +25,7 @@ export const EmptyState: FC<Props> = ({ isEditing, dispatch, hasAssetLoaded }) =
                             1. Add a variable font in the settings
                         </Text>
                         <Text as="p" size="large">
-                            2. Click the button to add the your first variable font style
+                            2. Click the button to add your first variable font style
                         </Text>
                         <Button
                             disabled={!hasAssetLoaded}
