@@ -1,5 +1,5 @@
 import { useBlockAssets, useBlockSettings, useEditorState } from '@frontify/app-bridge';
-import { Button, ButtonStyle, IconPlusCircle } from '@frontify/fondue';
+import { Button, ButtonEmphasis, ButtonStyle, IconPlusCircle } from '@frontify/fondue';
 import { BlockProps } from '@frontify/guideline-blocks-settings';
 import { Font } from 'lib-font';
 import React, { FC, useEffect, useReducer, useState } from 'react';
@@ -143,7 +143,8 @@ export const VariableFontStylesBlock: FC<BlockProps> = ({ appBridge }) => {
                         <Button
                             hugWidth
                             icon={<IconPlusCircle />}
-                            style={ButtonStyle.Secondary}
+                            style={ButtonStyle.Default}
+                            emphasis={ButtonEmphasis.Default}
                             onClick={() => dispatch({ type: ActionType.Add })}
                         >
                             Add new style

@@ -1,4 +1,4 @@
-import { Button, ButtonStyle, Heading, IconPlusCircle, Text } from '@frontify/fondue';
+import { Button, ButtonEmphasis, ButtonStyle, Heading, IconPlusCircle, Text } from '@frontify/fondue';
 import React, { Dispatch, FC } from 'react';
 
 import { Action, ActionType } from '../../reducer';
@@ -31,7 +31,8 @@ export const EmptyState: FC<Props> = ({ isEditing, dispatch, hasAssetLoaded }) =
                             disabled={!hasAssetLoaded}
                             icon={<IconPlusCircle />}
                             onClick={() => dispatch({ type: ActionType.Add })}
-                            style={ButtonStyle.Secondary}
+                            style={ButtonStyle.Default}
+                            emphasis={ButtonEmphasis.Default}
                         >
                             Add font style {!hasAssetLoaded && ' (load font first)'}
                         </Button>

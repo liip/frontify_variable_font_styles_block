@@ -1,5 +1,5 @@
 import { AppBridgeBlock } from '@frontify/app-bridge';
-import { Button, ButtonStyle, Color, Heading, IconMinusCircle, IconPen12 } from '@frontify/fondue';
+import { Button, ButtonEmphasis, ButtonStyle, Color, Heading, IconMinusCircle, IconPen12 } from '@frontify/fondue';
 import React, { Dispatch, FC, useState } from 'react';
 
 import { Action, ActionType, VariableFontStyle } from '../../reducer';
@@ -70,7 +70,8 @@ export const StyleEntry: FC<Props> = ({
                             <Button
                                 hugWidth
                                 icon={<IconMinusCircle />}
-                                style={ButtonStyle.Secondary}
+                                style={ButtonStyle.Default}
+                                emphasis={ButtonEmphasis.Default}
                                 onClick={() =>
                                     dispatch({
                                         type: ActionType.Delete,
