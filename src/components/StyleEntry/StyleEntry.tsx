@@ -1,5 +1,5 @@
 import { AppBridgeBlock } from '@frontify/app-bridge';
-import { Button, ButtonEmphasis, ButtonStyle, Color, Heading, IconMinusCircle, IconPen12 } from '@frontify/fondue';
+import { Button, ButtonEmphasis, ButtonStyle, Color, Heading, IconMinusCircle } from '@frontify/fondue';
 import React, { Dispatch, FC, useState } from 'react';
 
 import { Action, ActionType, VariableFontStyle } from '../../reducer';
@@ -49,7 +49,6 @@ export const StyleEntry: FC<Props> = ({
                             </EditableTextWrapper>
                             <EditableTextWrapper
                                 isEditing={isEditing}
-                                hidePen
                                 onEditableSave={function (value: string): void {
                                     dispatch({
                                         type: ActionType.Edit,
@@ -60,10 +59,7 @@ export const StyleEntry: FC<Props> = ({
                                     });
                                 }}
                             >
-                                <p className="tw-text-left">
-                                    {fontDescription}
-                                    {isEditing && <IconPen12 />}
-                                </p>
+                                <p className="tw-text-left">{fontDescription}</p>
                             </EditableTextWrapper>
                         </div>
                         <div className="tw-flex-shrink-0">

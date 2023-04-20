@@ -4,18 +4,19 @@ import React, { ReactElement } from 'react';
 interface EditableTextWrapperProps {
     children?: ReactElement;
     isEditing?: boolean;
-    hidePen?: boolean;
     onEditableSave: (value: string) => void;
 }
 
-export const EditableTextWrapper = ({ children, isEditing, hidePen, onEditableSave }: EditableTextWrapperProps) => {
+export const EditableTextWrapper = ({ children, isEditing, onEditableSave }: EditableTextWrapperProps) => {
     return isEditing ? (
         <div>
             <EditableText options={{ isSlimInputField: true, removeBoxPadding: true }} onEditableSave={onEditableSave}>
-                <>
+                <div className="tw-flex tw-items-center tw-gap-1">
                     {children}
-                    {!hidePen && <IconPen12 />}
-                </>
+                    <span className="tw-shrink-0">
+                        <IconPen12 />
+                    </span>
+                </div>
             </EditableText>
         </div>
     ) : (
