@@ -5,7 +5,7 @@ import React, { Dispatch, FC, useState } from 'react';
 import { Action, ActionType, VariableFontStyle } from '../../reducer';
 import style from './StyleEntry.module.css';
 import { ExampleText } from '../ExampleText';
-import { EditableTextWrapper } from '../EditableTextWrapper/EditableTextWrapper';
+import { EditableTextWrapper } from '../EditableTextWrapper';
 import { RangeSetting } from '../RangeSetting';
 
 interface Props {

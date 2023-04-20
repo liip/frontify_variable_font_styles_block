@@ -4,10 +4,10 @@ import { Handles, Rail, Slider, Tracks } from 'react-compound-slider';
 
 import { Action, ActionType, VariableFontDimension } from '../../reducer';
 import style from './RangeSetting.module.css';
-import { Handle, SliderRail, Track } from '../RangeInput/RangeInput';
-import { EditableTextWrapper } from '../EditableTextWrapper/EditableTextWrapper';
+import { Handle, SliderRail, Track } from '../RangeInput';
+import { EditableTextWrapper } from '../EditableTextWrapper';
 import { useThrottleCallback } from '@react-hook/throttle';
-import debounce from 'lodash.debounce';
+import debounce from 'lodash-es/debounce';
 
 const MODE = 2;
 

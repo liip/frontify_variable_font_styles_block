@@ -5,7 +5,7 @@ import { Font } from 'lib-font';
 import React, { FC, useEffect, useReducer, useState } from 'react';
 
 import { EmptyState } from './components/EmptyState';
-import { StyleEntry } from './components/StyleEntry/StyleEntry';
+import { StyleEntry } from './components/StyleEntry';
 import {
     ActionType,
     State,
