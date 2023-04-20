@@ -117,12 +117,12 @@ export const VariableFontStylesBlock: FC<BlockProps> = ({ appBridge }) => {
                                         url("${currentAsset.originUrl}")
                                         format("${extensionMap[currentAsset?.extension] || 'truetype-variations'}");
                                     ${
-                                        state.defaultDimensions.wght.minValue && state.defaultDimensions.wght.maxValue
+                                        state.defaultDimensions.wght?.minValue && state.defaultDimensions.wght?.maxValue
                                             ? `font-weight: ${state.defaultDimensions.wght.minValue} ${state.defaultDimensions.wght.maxValue};`
                                             : ''
                                     }
                                     ${
-                                        state.defaultDimensions.wdth.minValue && state.defaultDimensions.wdth.maxValue
+                                        state.defaultDimensions.wdth?.minValue && state.defaultDimensions.wdth?.maxValue
                                             ? `font-stretch: ${state.defaultDimensions.wdth.minValue}% ${state.defaultDimensions.wdth.maxValue}%;`
                                             : ''
                                     }
