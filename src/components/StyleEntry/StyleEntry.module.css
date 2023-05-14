@@ -8,8 +8,9 @@
 .style-entry__container {
     padding-left: 1rem;
     border-left: 1px solid #eaebeb;
-    max-width: 300px;
-    flex: 1 0 auto;
+    flex-basis: 280px;
+    flex-grow: 1;
+    max-width: 400px;
 }
 
 .style-entry__header {

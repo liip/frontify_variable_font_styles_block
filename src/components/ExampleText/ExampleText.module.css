@@ -1,9 +1,14 @@
+.example-text__wrapper {
+    flex-basis: 0;
+    flex-grow: 999;
+    min-inline-size: 52%;
+}
+
 .example-text {
     font-size: 1.5rem;
     line-height: 1.75rem;
     pointer-events: none;
     max-width: 400px;
-    flex: 0 1 400px;
     text-align: left;
 }
 
@@ -29,4 +34,3 @@
     align-items: center;
     margin-left: 3rem;
 }
-
