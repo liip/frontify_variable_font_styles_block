@@ -33,6 +33,17 @@ const THROTTLE_FPS = 30;
 
 const DEBOUNCE_MS = 1500;
 
+const getPartialRegular = (values: readonly number[]) => ({
+    value: values[0],
+});
+
+const getPartialRange = (values: readonly number[]) => ({
+    editorMinValue: values[0],
+    editorDefault: values[1],
+    value: values[1],
+    editorMaxValue: values[MODE],
+});
+
 export const RangeSetting: FC<RangeSettingProps> = ({
     dispatch,
     id,
@@ -60,20 +71,23 @@ export const RangeSetting: FC<RangeSettingProps> = ({
         setLocalDimension({ ...localDimension, ...partial });
     }, THROTTLE_FPS);
 
-    const handleRegularEdit = (values: readonly number[]) => {
-        const partial = { value: values[0] };
+    const handleRegularEditLocal = (values: readonly number[]) => {
+        const partial = getPartialRegular(values);
         localEdit(partial);
+    };
+
+    const handleRegularEditRemote = (values: readonly number[]) => {
+        const partial = getPartialRegular(values);
         debouncedEdit(partial);
     };
 
-    const handleRangeEdit = (values: readonly number[]) => {
-        const partial = {
-            editorMinValue: values[0],
-            editorDefault: values[1],
-            value: values[1],
-            editorMaxValue: values[MODE],
-        };
+    const handleRangeEditLocal = (values: readonly number[]) => {
+        const partial = getPartialRange(values);
         localEdit(partial);
+    };
+
+    const handleRangeEditRemote = (values: readonly number[]) => {
+        const partial = getPartialRange(values);
         debouncedEdit(partial);
     };
 
@@ -241,7 +255,8 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                     step={STEP}
                     domain={[localDimension.minValue, localDimension.maxValue]}
                     rootStyle={sliderStyle}
-                    onUpdate={handleRangeEdit}
+                    onSlideEnd={handleRangeEditRemote}
+                    onUpdate={handleRangeEditLocal}
                     values={[
                         localDimension.editorMinValue,
                         localDimension.editorDefault,
@@ -280,7 +295,8 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                     step={STEP}
                     domain={[localDimension.editorMinValue, localDimension.editorMaxValue]}
                     rootStyle={sliderStyle}
-                    onUpdate={handleRegularEdit}
+                    onSlideEnd={handleRegularEditRemote}
+                    onUpdate={handleRegularEditLocal}
                     values={[localDimension.value || 0]}
                 >
                     <Rail>{({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}</Rail>
@@ -315,7 +331,8 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                     step={STEP}
                     domain={[localDimension.editorMinValue, localDimension.editorMaxValue]}
                     rootStyle={sliderStyle}
-                    onUpdate={handleRegularEdit}
+                    onSlideEnd={handleRegularEditRemote}
+                    onUpdate={handleRegularEditLocal}
                     values={[localDimension.value || 0]}
                 >
                     <Rail>{({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}</Rail>
