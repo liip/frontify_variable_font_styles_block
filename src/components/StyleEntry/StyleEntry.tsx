@@ -62,22 +62,24 @@ export const StyleEntry: FC<Props> = ({
                                 <p className="tw-text-left">{fontDescription}</p>
                             </EditableTextWrapper>
                         </div>
-                        <div className="tw-flex-shrink-0">
-                            <Button
-                                hugWidth
-                                icon={<IconMinusCircle />}
-                                style={ButtonStyle.Default}
-                                emphasis={ButtonEmphasis.Default}
-                                onClick={() =>
-                                    dispatch({
-                                        type: ActionType.Delete,
-                                        payload: {
-                                            id,
-                                        },
-                                    })
-                                }
-                            />
-                        </div>
+                        {isEditing && (
+                            <div className="tw-flex-shrink-0">
+                                <Button
+                                    hugWidth
+                                    icon={<IconMinusCircle />}
+                                    style={ButtonStyle.Default}
+                                    emphasis={ButtonEmphasis.Default}
+                                    onClick={() =>
+                                        dispatch({
+                                            type: ActionType.Delete,
+                                            payload: {
+                                                id,
+                                            },
+                                        })
+                                    }
+                                />
+                            </div>
+                        )}
                     </div>
                     {Object.values(dimensions).map((dimension) => (
                         <RangeSetting
