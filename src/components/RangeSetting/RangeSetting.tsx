@@ -331,9 +331,8 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                     step={STEP}
                     domain={[localDimension.editorMinValue, localDimension.editorMaxValue]}
                     rootStyle={sliderStyle}
-                    onSlideEnd={handleRegularEditRemote}
                     onUpdate={handleRegularEditLocal}
-                    values={[localDimension.value || 0]}
+                    values={[localDimension.editorDefault || 0]}
                 >
                     <Rail>{({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}</Rail>
                     <Handles>
