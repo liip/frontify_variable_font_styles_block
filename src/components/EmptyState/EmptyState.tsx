@@ -1,4 +1,4 @@
-import { Button, ButtonStyle, Heading, IconPlusCircle, Text } from '@frontify/fondue';
+import { Button, ButtonEmphasis, ButtonStyle, Heading, IconPlusCircle, Text } from '@frontify/fondue';
 import React, { Dispatch, FC } from 'react';
 
 import { Action, ActionType } from '../../reducer';
@@ -25,13 +25,14 @@ export const EmptyState: FC<Props> = ({ isEditing, dispatch, hasAssetLoaded }) =
                             1. Add a variable font in the settings
                         </Text>
                         <Text as="p" size="large">
-                            2. Click the button to add the your first variable font style
+                            2. Click the button to add your first variable font style
                         </Text>
                         <Button
                             disabled={!hasAssetLoaded}
                             icon={<IconPlusCircle />}
                             onClick={() => dispatch({ type: ActionType.Add })}
-                            style={ButtonStyle.Secondary}
+                            style={ButtonStyle.Default}
+                            emphasis={ButtonEmphasis.Default}
                         >
                             Add font style {!hasAssetLoaded && ' (load font first)'}
                         </Button>

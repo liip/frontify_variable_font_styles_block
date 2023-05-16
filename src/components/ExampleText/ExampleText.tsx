@@ -1,4 +1,3 @@
-import { IconPen16 } from '@frontify/fondue';
 import React, { Dispatch, FC, VFC } from 'react';
 import { Action, ActionType, VariableFontDimension, defaultExampleText } from '../../reducer';
 import { EditableTextWrapper } from '../EditableTextWrapper';
@@ -37,7 +36,6 @@ export const ExampleText: FC<ExampleTextProps> = ({
     return (
         <div className={style['example-text__wrapper']}>
             <EditableTextWrapper
-                hidePen
                 isEditing={isEditing}
                 onEditableSave={(value: string) => {
                     dispatch({
@@ -59,7 +57,6 @@ export const ExampleText: FC<ExampleTextProps> = ({
                     }}
                 >
                     {exampleText}
-                    {isEditing && <IconPen16 />}
                 </p>
             </EditableTextWrapper>
         </div>
