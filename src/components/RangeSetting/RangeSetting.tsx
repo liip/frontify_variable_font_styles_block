@@ -122,6 +122,8 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                                 }
                             }
 
+                            setLocalDimension({ ...localDimension, ...partial });
+
                             dispatch({
                                 type: ActionType.EditDimensions,
                                 payload: {
