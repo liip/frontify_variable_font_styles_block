@@ -122,6 +122,8 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                                 }
                             }
 
+                            setLocalDimension({ ...localDimension, ...partial });
+
                             dispatch({
                                 type: ActionType.EditDimensions,
                                 payload: {
@@ -154,6 +156,8 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                                     partial.defaultValue = valueAsNumber + STEP;
                                 }
 
+                                setLocalDimension({ ...localDimension, ...partial });
+
                                 dispatch({
                                     type: ActionType.EditDimensions,
                                     payload: {
@@ -174,15 +178,19 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                         <EditableTextWrapper
                             isEditing={isEditing && localDimension.isValueRange}
                             onEditableSave={(value) => {
+                                const partial: Partial<VariableFontDimension> = {
+                                    editorDefault: parseInt(value),
+                                    value: parseInt(value),
+                                };
+
+                                setLocalDimension({ ...localDimension, ...partial });
+
                                 dispatch({
                                     type: ActionType.EditDimensions,
                                     payload: {
                                         id,
                                         tag: localDimension.tag,
-                                        partial: {
-                                            editorDefault: parseInt(value),
-                                            value: parseInt(value),
-                                        },
+                                        partial,
                                     },
                                 });
                             }}
@@ -201,14 +209,18 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                         <EditableTextWrapper
                             isEditing={isEditing}
                             onEditableSave={(value) => {
+                                const partial: Partial<VariableFontDimension> = {
+                                    value: parseInt(value),
+                                };
+
+                                setLocalDimension({ ...localDimension, ...partial });
+
                                 dispatch({
                                     type: ActionType.EditDimensions,
                                     payload: {
                                         id,
                                         tag: localDimension.tag,
-                                        partial: {
-                                            value: parseInt(value),
-                                        },
+                                        partial,
                                     },
                                 });
                             }}
@@ -234,6 +246,9 @@ export const RangeSetting: FC<RangeSettingProps> = ({
                                 if (localDimension.defaultValue < valueAsNumber) {
                                     partial.defaultValue = valueAsNumber - STEP;
                                 }
+
+                                setLocalDimension({ ...localDimension, ...partial });
+
                                 dispatch({
                                     type: ActionType.EditDimensions,
                                     payload: {

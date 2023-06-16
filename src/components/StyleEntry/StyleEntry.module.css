@@ -17,7 +17,11 @@
     flex-grow: 1;
 }
 
-.style-entry__header div[data-test-id="editable-node-container"] {
+.style-entry__header button {
+    text-align: left;
+}
+
+.style-entry__header div[data-test-id='editable-node-container'] {
     justify-content: flex-start;
     display: inline-flex;
 }
